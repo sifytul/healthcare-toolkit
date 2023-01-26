@@ -1,0 +1,58 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer components {
+  .text-primary {
+    color: var(--clr-primary);
+  }
+  .bg-primary {
+    background: var(--clr-primary);
+  }
+  .bg-secondary {
+    background-color: var(--clr-secondary);
+  }
+  .border-primary {
+    border: 1px solid var(--clr-secondary);
+  }
+}
+
+@layer base {
+  :root {
+    --clr-primary: #f59031;
+    --clr-secondary: hsl(31, 91%, 95%);
+    --ff-primary: ;
+  }
+  html {
+    font-family: Arial, Helvetica, sans-serif
+  }
+  body {
+    background: #f7f7f7;
+  }
+
+  h1 {
+    @apply text-7xl;
+  }
+  h2 {
+    @apply text-5xl;
+  }
+  h4 {
+    @apply text-3xl;
+  }
+}
+
+@layer utilities {
+  .sidebar-menu-option {
+    text-transform: uppercase;
+    font-weight: 700;
+    color: rgba(0, 0, 0, 0.44);
+    border-bottom: 1px solid rgb(227, 223, 223);
+    padding: 0.1rem 2rem;
+    cursor: pointer;
+  }
+  .sidebar-menu-option:hover,
+  .sidebar-menu-option:focus-visible {
+    background-color: #f6c597;
+    transition: ease-in 200ms;
+  }
+}

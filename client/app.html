@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <button class="arrow-button"></button>
+    <style>
+        .arrow-button {
+  display: inline-block;
+  width: 0; 
+  height: 0; 
+  border-top: 20px solid transparent;
+  border-bottom: 20px solid transparent;
+  border-left: 30px solid rgb(112, 112, 235);
+  position:relative;
+}
+.arrow-button:before {
+  content: "";
+  position: absolute;
+  top: -20px;
+  left: -30px;
+  border-top: 20px solid transparent;
+  border-bottom: 20px solid transparent;
+  border-left: 10px solid rgb(2, 2, 162);
+}
+
+    </style>
+</body>
+</html>
