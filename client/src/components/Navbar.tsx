@@ -22,13 +22,14 @@ const Navbar = ({
       if (val === "") {
         navigatedPath.push("root");
       } else if (val.includes("-")) {
-        navigatedPath.push(val.replace("-", " "));
+        navigatedPath.push(val.replace("-", " ").toUpperCase());
       } else {
-        navigatedPath.push(val);
+        navigatedPath.push(val.toUpperCase());
       }
     });
   }
-  console.log(navigatedPath);
+
+
   return (
     <div className="h-14 border-b border-amber-100 flex items-center gap-4 xl:justify-between">
       <FiMenu
@@ -40,9 +41,9 @@ const Navbar = ({
 
       {/* navigation bar  */}
       <div className="flex items-center">
-        {navigatedPath.map((val, ind) => (
+        {navigatedPath.map((value, ind) => (
           <Fragment key={ind}>
-            {val === "root" ? (
+            {value === "root" ? (
               <button
                 className={`${
                   ind == navigatedPath.length - 1
@@ -60,9 +61,9 @@ const Navbar = ({
                     ind == navigatedPath.length - 1
                       ? "bg-primary text-white"
                       : "bg-secondary text-primary"
-                  } px-2`}
+                  } px-2 font-bold`}
                 >
-                  {val}
+                  {value}
                 </button>
               </>
             )}
