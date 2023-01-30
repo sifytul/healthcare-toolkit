@@ -1,5 +1,7 @@
-import React from 'react'
-import TableField from '../../components/shared/tableField'
+import { ChangeEvent, useState } from "react";
+import Button from "../../components/shared/Button";
+import SearchField from "../../components/shared/SearchField";
+import TableField from "../../components/shared/TableField";
 type tableDataType = {
   [key: string]: any;
 };
@@ -35,11 +37,23 @@ const tableData: tableDataType[] = [
 ];
 
 const Visits = () => {
-  return (
-    <div>
-        <TableField tableData={tableData}/>
-    </div>
-  )
-}
+  const [searchedText, setSearchedText] = useState("");
 
-export default Visits
+  const changeHandler = (e: ChangeEvent<HTMLInputElement>) => {
+    setSearchedText(e.target.value);
+  };
+
+  return (
+    <div className="space-y-6 m-10">
+      <SearchField
+        placeholder="Search"
+        value={searchedText}
+        changeHandler={changeHandler}
+      />
+      <TableField tableData={tableData} />
+      <Button text="+ Add Visit" varientColor="primary" size="sm" />
+    </div>
+  );
+};
+
+export default Visits;

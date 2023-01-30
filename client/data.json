@@ -1,0 +1,89 @@
+{
+  "patient": [
+    {
+      "patientId": 1,
+      "name": "Elena Risteska",
+      "age": 27,
+      "dateofbirth": "11-11-1995",
+      "gender": "female",
+      "dateofdeath": "-",
+      "major_issue": "none"
+    },
+    {
+      "patientId": 2,
+      "name": "Steven Smith",
+      "age": 27,
+      "dateofbirth": "11-11-1995",
+      "gender": "male",
+      "dateofdeath": "-",
+      "major_issue": "none"
+    },
+    {
+      "patientId": 3,
+      "name": "Mujarabani",
+      "age": 27,
+      "dateofbirth": "11-11-1995",
+      "gender": "male",
+      "dateofdeath": "-",
+      "major_issue": "none"
+    }
+],
+  "programs": [
+    {
+    "ID": 696969,
+    "Name": "Annual Free Checkup Program",
+    "Description":"Get free checkups in Radiology on this day of the year",
+    "Concept Name":"Something",
+    "Workflows":"Something",
+    "Possible Outcomes Defined by":"Something"
+    },
+    {
+    "ID": 696969,
+    "Name": "Annual Free Checkup Program",
+    "Description":"Get free checkups in Radiology on this day of the year",
+    "Concept Name":"Something",
+    "Workflows":"Something",
+    "Possible Outcomes Defined by":"Something"
+    },
+    {
+    "ID": 696969,
+    "Name": "Annual Free Checkup Program",
+    "Description":"Get free checkups in Radiology on this day of the year",
+    "Concept Name":"Something",
+    "Workflows":"Something",
+    "Possible Outcomes Defined by":"Something"
+    }
+
+],
+  "relationships": [{
+    "Relative": "Dr. John Doe",
+    "Relationship": "Doctor",
+    "Start Date": "03-Jun-2022",
+    "End Date": "10-Jun-2022"           
+  },
+{
+  "Relative": "Dr. John Doe",
+  "Relationship": "Doctor",
+  "Start Date": "03-Jun-2022",
+  "End Date": "10-Jun-2022"
+}
+],
+  "addresses": [
+    {
+        "type": "present",
+        "address": "Somewhere in somewhere",
+        "city/Village": "Somecity",
+        "state/Province": "Somestate",
+        "country": "Bangladesh",
+        "postal code": "4331"
+    },
+    {
+        "type": "parmanent",
+        "address": "Somewhere in somewhere",
+        "city/Village": "Somecity",
+        "state/Province": "Somestate",
+        "country": "Bangladesh",
+        "postal code": "4331"
+    }
+]
+}

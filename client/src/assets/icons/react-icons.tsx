@@ -6,5 +6,16 @@ import { FiMenu } from "react-icons/fi";
 import { MdPlayArrow } from "react-icons/md";
 import { RxCross1 } from "react-icons/rx";
 import { MdPersonSearch } from "react-icons/md";
+import {FiEdit} from 'react-icons/fi'
 
-export { FaEdit, HiXCircle, BsPersonCircle, FaHome, FiMenu, MdPlayArrow, RxCross1, MdPersonSearch };
+export {
+  FaEdit,
+  HiXCircle,
+  BsPersonCircle,
+  FaHome,
+  FiMenu,
+  MdPlayArrow,
+  RxCross1,
+  MdPersonSearch,
+  FiEdit,
+};

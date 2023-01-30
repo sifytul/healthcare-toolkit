@@ -10,7 +10,7 @@ const Sidebar = ({
 }) => {
   return (
     <>
-      <div className="flex justify-between items-center ">
+      <div className="flex justify-between items-center">
         <img
           className="h-[70px] mx-3 my-1"
           src=".\src\assets\logo.png"

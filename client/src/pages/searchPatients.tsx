@@ -1,6 +1,6 @@
-import { ChangeEvent, useEffect, useState } from "react";
-import {MdPersonSearch} from '../assets/icons/react-icons'
+import { ChangeEvent, useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
+import { MdPersonSearch } from "../assets/icons/react-icons";
 import SearchField from "../components/shared/SearchField";
 
 interface patientObj {
@@ -50,6 +50,9 @@ const SearchPatients = () => {
   const [searchedText, setSearchedText] = useState<string>("");
   const [debouncedSearchedText, setDebouncedSearchedText] =
     useState(searchedText);
+
+  const inputRef = useRef<HTMLInputElement>(null);
+
   const changeHandler = (e: ChangeEvent<HTMLInputElement>) => {
     setSearchedText(e.target.value);
   };
@@ -70,11 +73,18 @@ const SearchPatients = () => {
     }
   }, [debouncedSearchedText]);
 
+  useEffect(() => {
+    if (inputRef.current) {
+      inputRef.current.focus();
+    }
+  }, []);
+
   return (
     <div className="m-4 lg:w-3/4">
       <h2 className="my-4">Search Patient</h2>
       <SearchField
-        searchedText={searchedText}
+        inputRef={inputRef}
+        value={searchedText}
         placeholder="Patient Id or Patient Name"
         changeHandler={changeHandler}
         SearchIconComponent={MdPersonSearch}
