@@ -4,6 +4,8 @@ import TrialComp from "./components/TrialComp";
 import Welcome from "./components/Welcome";
 import Home from "./pages/Home";
 import PageNotFound from "./pages/PageNotFound";
+import Overview from "./pages/PatientComponents/Overview";
+import Visits from "./pages/PatientComponents/Visits";
 import PatientDashboard from "./pages/PatientDashboard";
 import SearchPatients from "./pages/searchPatients";
 import SignIn from "./pages/signIn";
@@ -16,7 +18,10 @@ function App() {
           <Route index element={<Welcome />} />
           <Route path="create-patient" element={<HeroSection />} />
           <Route path="search-patient" element={<SearchPatients />}/>
-          <Route path="search-patient/patient-dashboard" element={<PatientDashboard/>}/>
+          <Route path="search-patient/patient-dashboard/:id" element={<PatientDashboard/>}>
+            <Route path="overview" element={<Overview/>}/>
+            <Route path="visits" element= {<Visits/>}/>
+             </Route>
         <Route path="/*" element={<PageNotFound/>}/>
           
         </Route>

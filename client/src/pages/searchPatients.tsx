@@ -1,5 +1,7 @@
-import { useEffect, useState } from "react";
-import { MdPersonSearch } from "react-icons/md";
+import { ChangeEvent, useEffect, useState } from "react";
+import {MdPersonSearch} from '../assets/icons/react-icons'
+import { Link } from "react-router-dom";
+import SearchField from "../components/shared/SearchField";
 
 interface patientObj {
   patientId: number;
@@ -45,10 +47,10 @@ const patient: patientDataType = {
 
 const SearchPatients = () => {
   const [patientData, setPatientData] = useState<patientObj[]>([]);
-  const [searchedText, setSearchedText] = useState();
+  const [searchedText, setSearchedText] = useState<string>("");
   const [debouncedSearchedText, setDebouncedSearchedText] =
     useState(searchedText);
-  const changeHandler = (e) => {
+  const changeHandler = (e: ChangeEvent<HTMLInputElement>) => {
     setSearchedText(e.target.value);
   };
 
@@ -71,25 +73,22 @@ const SearchPatients = () => {
   return (
     <div className="m-4 lg:w-3/4">
       <h2 className="my-4">Search Patient</h2>
-      <div className="flex items-center border p-2 rounded-lg md:w-2/3 bg-secondary mb-4">
-        <MdPersonSearch className="text-primary text-3xl mr-2" />
-        <input
-          className="outline-none flex-grow  p-2"
-          name="search"
-          type="search"
-          placeholder="Patient Id or Patient Name"
-          value={searchedText}
-          onChange={changeHandler}
-        />
-      </div>
+      <SearchField
+        searchedText={searchedText}
+        placeholder="Patient Id or Patient Name"
+        changeHandler={changeHandler}
+        SearchIconComponent={MdPersonSearch}
+      />
 
-      {searchedText&& <p className="text-end">
-        Viewing result for <strong>"{searchedText}"</strong> - 1 page
-      </p>}
+      {searchedText && (
+        <p className="text-end">
+          Viewing result for <strong>"{searchedText}"</strong> - 1 page
+        </p>
+      )}
       <div className="m-4 overflow-x-auto">
-        <table className="mt-8 border-collapse shadow-md bg">
+        <table className="mt-8 border-collapse shadow-md">
           <thead>
-            <tr className="border-b bg-secondary text-gray-600 ">
+            <tr className="border-b bg-secondary text-gray-600">
               <th>Id</th>
               <th>Full Name</th>
               <th>Age</th>
@@ -100,20 +99,27 @@ const SearchPatients = () => {
             </tr>
           </thead>
           <tbody>
-
-          {patientData &&
-            patientData.map((patient) => (
+            {patientData &&
+              patientData.map((patient) => (
                 <tr key={patient.patientId}>
-                  <td>{patient?.patientId}</td>
-                  <td>{patient?.name}</td>
+                  <td>
+                    <Link to={`patient-dashboard/${patient.patientId}`}>
+                      {patient?.patientId}
+                    </Link>
+                  </td>
+                  <td>
+                    <Link to={`patient-dashboard/${patient.patientId}`}>
+                      {patient?.name}
+                    </Link>
+                  </td>
                   <td>{patient?.age}</td>
                   <td>{patient?.gender}</td>
                   <td>{patient?.dateofbirth}</td>
                   {/* <td>{patient.dateofdeath}</td> */}
                   <td>{patient?.major_issue}</td>
                 </tr>
-            ))}
-            </tbody>
+              ))}
+          </tbody>
         </table>
       </div>
       <div className="flex justify-between my-4">
@@ -126,7 +132,9 @@ const SearchPatients = () => {
           </select>
           entries
         </p>
-        <p>Showing 1 to 3 of 3 entries</p>
+        <p>
+          Showing {patientData.length} of {patientData.length} entries
+        </p>
       </div>
     </div>
   );

@@ -1,8 +1,11 @@
 import { Fragment } from "react";
-import { BsPersonCircle } from "react-icons/bs";
-import { FaHome } from "react-icons/fa";
-import { FiMenu } from "react-icons/fi";
-import { MdPlayArrow } from "react-icons/md";
+import {
+  BsPersonCircle,
+  FaHome,
+  FiMenu,
+  MdPlayArrow,
+} from "../assets/icons/react-icons";
+
 import { Link, useLocation } from "react-router-dom";
 
 const Navbar = ({
@@ -29,7 +32,6 @@ const Navbar = ({
     });
   }
 
-
   return (
     <div className="h-14 border-b border-amber-100 flex items-center gap-4 xl:justify-between">
       <FiMenu
@@ -51,7 +53,7 @@ const Navbar = ({
                     : "bg-white text-primary border border-primary"
                 } w-fit px-2`}
               >
-                <FaHome className=" text-2xl" />
+                <FaHome className=" text-xl" />
               </button>
             ) : (
               <>
@@ -61,7 +63,7 @@ const Navbar = ({
                     ind == navigatedPath.length - 1
                       ? "bg-primary text-white"
                       : "bg-secondary text-primary"
-                  } px-2 font-bold`}
+                  } px-2 font-bold text-sm`}
                 >
                   {value}
                 </button>

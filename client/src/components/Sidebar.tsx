@@ -1,4 +1,4 @@
-import { RxCross1 } from "react-icons/rx";
+import {RxCross1 } from '../assets/icons/react-icons'
 import { Link } from "react-router-dom";
 
 const Sidebar = ({

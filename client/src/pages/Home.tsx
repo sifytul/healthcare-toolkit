@@ -14,13 +14,15 @@ const Home = () => {
       <div
         className={`col-span-2 m-2 bg-[var(--clr-secondary)] rounded-sm ${
           !sideBar ? "hidden" : "inline-block"
-        } xl:inline-block h-[calc(100vh-2*0.5rem)]`}
+        } xl:inline-block h-[calc(100vh-2*0.5rem)] fixed`}
       >
         <Sidebar sideBar={sideBar} sideBarHandler={toggleHandler} />
       </div>
       <div className="col-start-3 col-span-10">
-        <Navbar sideBar={sideBar} sideBarHandler={toggleHandler} />
-        <Outlet/>
+        <div className='sticky top-0 bg-white z-2'>
+          <Navbar sideBar={sideBar} sideBarHandler={toggleHandler} />
+        </div>
+        <Outlet />
       </div>
     </div>
   );

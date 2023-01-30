@@ -3,28 +3,37 @@
 @tailwind utilities;
 
 @layer components {
-  .text-primary {
-    color: var(--clr-primary);
-  }
-  .bg-primary {
-    background: var(--clr-primary);
-  }
-  .bg-secondary {
-    background-color: var(--clr-secondary);
-  }
-  .border-primary {
-    border: 1px solid var(--clr-secondary);
-  }
+ .tableActionsIcon {
+  font-size: 1.5rem;
+
+ }
+ .tableActionsEditIcon {
+  color: var(--clr-primary);
+ }
+ .tableActionsDeleteIcon {
+  color: rgb(245, 34, 34);
+ }
 }
 
 @layer base {
   :root {
     --clr-primary: #f59031;
     --clr-secondary: hsl(31, 91%, 95%);
-    --ff-primary: ;
+    --ff-primary: Roboto, sans-serif;
+
+    --fs-700: 2.25rem;
+    --fs-600: 2rem;
+    --fs-500: 1.5rem;
+    --fs-550: 1.25rem;
+    --fs-400: 1rem;
+    --fs-300: 0.875rem;
+    --fs-200: 0.75 rem;
+
+    --fw-400: 400;
+    --fw-500: 500;
   }
   html {
-    font-family: Arial, Helvetica, sans-serif
+    font-family: Roboto, sans-serif;
   }
   body {
     background: #f7f7f7;
@@ -39,14 +48,17 @@
   h4 {
     @apply text-3xl;
   }
-  thead{
-    @apply shadow-md 
+  table {
+    @apply border-collapse shadow-md min-w-[60%] rounded-md;
+  }
+  thead {
+    @apply shadow-md h-12 px-2
   }
   th {
-    @apply uppercase px-8 py-4 font-bold
+    @apply uppercase px-2 lg:px-3 lg:py-2 text-sm font-bold text-left;
   }
   td {
-    @apply px-8 py-2
+    @apply lg:px-3 lg:py-2 px-2 py-1;
   }
 }
 
@@ -63,5 +75,42 @@
   .sidebar-menu-option:focus-visible {
     background-color: #f6c597;
     transition: ease-in 200ms;
+  }
+
+
+  /* utility classes  */
+   .text-primary {
+    color: var(--clr-primary);
+  }
+  .bg-primary {
+    background: var(--clr-primary);
+  }
+  .bg-secondary {
+    background-color: var(--clr-secondary);
+  }
+  .border-primary {
+    border-bottom: 2px solid var(--clr-primary);
+  }
+
+  .textSize-500 {
+    font-size: var(--fs-500);
+  }
+  .textSize-400 {
+    font-size: var(--fs-400);
+  }
+  .textSize-300 {
+    font-size: var(--fs-300);
+  }
+  .textSize-200 {
+    font-size: var(--fs-500);
+  }
+  .textSize-550 {
+    font-size: var(--fs-550);
+  }
+  .text-gray-primary {
+    @apply text-gray-700
+  }
+  .text-gray-secondary {
+    color: rgba(0, 0, 0, 0.65);
   }
 }
