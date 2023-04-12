@@ -1,14 +1,14 @@
-import { ChangeEvent, useState , FormEvent} from "react";
-import { BsEyeFill, BsEyeSlashFill, BsFillPersonFill } from "react-icons/bs";
-import { CgKey } from "react-icons/cg";
+import { ChangeEvent, FormEvent, useState } from "react";
+import { BsFillPersonFill, CgKey } from "../assets/icons/react-icons";
+
+import Button from "../components/shared/Button";
+import Input from "../components/shared/Input";
 
 const init = {
   username: "",
   password: "",
 };
 const SignIn = () => {
-  const [passwordOpen, setPasswordOpen] = useState(false);
-
   const [formState, setFormState] = useState({ ...init });
 
   const changeHandler = (e: ChangeEvent<HTMLInputElement>) => {
@@ -20,6 +20,7 @@ const SignIn = () => {
 
   const submitHandler = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    
     //TODO: Need to implement submission
   };
   return (
@@ -58,43 +59,27 @@ const SignIn = () => {
               Login to proceed
             </p>
           </div>
-          <form 
-          onSubmit={submitHandler}
-          className="flex flex-col w-full space-y-3">
-            <div className="flex items-center space-x-2 border border-gray p-2 rounded-lg">
-              <BsFillPersonFill className="text-primary text-xl" />
-              <input
-                className="outline-none"
-                name="username"
-                placeholder="username"
-                type="text"
-                value={formState.username}
-                onChange={changeHandler}
-              />
-            </div>
-            <div className="flex items-center justify-between space-x-2 border border-gray p-2 rounded-lg">
-              <CgKey className="text-primary text-xl" />
-              <input
-                className="outline-none flex-grow"
-                name="password"
-                placeholder="password"
-                type={passwordOpen ? "text" : "password"}
-                value={formState.password}
-                onChange={changeHandler}
-              />
-              <div
-                className="text-primary text-xl"
-                onClick={() => setPasswordOpen(!passwordOpen)}
-              >
-                {passwordOpen ? <BsEyeSlashFill /> : <BsEyeFill />}
-              </div>
-            </div>
-            <button
-              className="flex items-center border border-gray p-2 bg-primary rounded-lg justify-center text-white font-bold"
-              type="submit"
-            >
-              LOGIN
-            </button>
+          <form
+            onSubmit={submitHandler}
+            className="flex flex-col w-full space-y-3"
+          >
+            <Input
+              name={"username"}
+              placeholder={"username"}
+              Icon={BsFillPersonFill}
+              value={formState.username}
+              changeHandler={changeHandler}
+            />
+            <Input
+              name={"password"}
+              placeholder={"password"}
+              passwordField
+              Icon={CgKey}
+              value={formState.password}
+              changeHandler={changeHandler}
+            />
+
+            <Button text="LOGIN" type="submit" varientColor="primary" />
           </form>
           <p className="text-sm text-gray-500 underline cursor-pointer">
             I forgot my password

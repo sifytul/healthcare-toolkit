@@ -1,9 +1,5 @@
-import React from 'react'
-
 const Graphs = () => {
-  return (
-    <div>Graphs</div>
-  )
-}
+  return <div>Have to implement interactive graphs</div>;
+};
 
-export default Graphs
+export default Graphs;

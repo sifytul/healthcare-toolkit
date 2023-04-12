@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import { FiEdit } from "../../assets/icons/react-icons";
 import Button from "../../components/shared/Button";
 import TableField from "../../components/shared/TableField";
@@ -27,12 +28,14 @@ const Demographics = () => {
       <TableField tableData={addresses} />
       <hr />
       <div className="flex gap-4">
-        <Button
-          text="Edit this patient"
-          varientColor="primary"
-          size="sm"
-          Icon={FiEdit}
-        />
+        <Link to="search">
+          <Button
+            text="Edit this patient"
+            varientColor="primary"
+            size="sm"
+            Icon={FiEdit}
+          />
+        </Link>
         <Button
           text="Edit this patient (short form)"
           varientColor="primary"

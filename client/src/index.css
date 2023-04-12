@@ -3,16 +3,15 @@
 @tailwind utilities;
 
 @layer components {
- .tableActionsIcon {
-  font-size: 1.5rem;
-
- }
- .tableActionsEditIcon {
-  color: var(--clr-primary);
- }
- .tableActionsDeleteIcon {
-  color: rgb(245, 34, 34);
- }
+  .tableActionsIcon {
+    font-size: 1.5rem;
+  }
+  .tableActionsEditIcon {
+    color: var(--clr-primary);
+  }
+  .tableActionsDeleteIcon {
+    color: rgb(245, 34, 34);
+  }
 }
 
 @layer base {
@@ -52,7 +51,7 @@
     @apply border-collapse shadow-md min-w-[60%] rounded-md;
   }
   thead {
-    @apply shadow-md h-12 px-2
+    @apply shadow-md h-12 px-2;
   }
   th {
     @apply uppercase px-2 lg:px-3 lg:py-2 text-sm font-bold text-left;
@@ -60,7 +59,9 @@
   td {
     @apply lg:px-3 lg:py-2 px-2 py-1;
   }
-  tr:nth-child(even) {background-color: #f2f2f2;}
+  tr:nth-child(even) {
+    background-color: #f2f2f2;
+  }
 }
 
 @layer utilities {
@@ -78,9 +79,8 @@
     transition: ease-in 200ms;
   }
 
-
   /* utility classes  */
-   .text-primary {
+  .text-primary {
     color: var(--clr-primary);
   }
   .bg-primary {
@@ -109,9 +109,12 @@
     font-size: var(--fs-550);
   }
   .text-gray-primary {
-    @apply text-gray-700
+    @apply text-gray-700;
   }
   .text-gray-secondary {
     color: rgba(0, 0, 0, 0.65);
+  }
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
   }
 }

@@ -1,12 +1,10 @@
 import { Outlet } from "react-router-dom";
-import { FaEdit, HiXCircle } from "../assets/icons/react-icons";
 import SecondaryNavbar from "../components/SecondaryNavbar";
 import Button from "../components/shared/Button";
-import Overview from "./PatientComponents/Overview";
 
 const PatientDashboard = () => {
   return (
-    <div>
+    <div className="scroll-smooth scrollbar-hide">
       {/* patient details */}
       <div className="border border-gray-300 m-4 p-4 lg:m-6 lg:p-6 rounded-md shadow-sm space-y-3">
         <div className="flex justify-between">

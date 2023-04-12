@@ -71,6 +71,24 @@ const SearchPatients = () => {
     if (pt !== undefined) {
       setPatientData([patient[Number(debouncedSearchedText)]]);
     }
+
+    // This is the code to fetch the data
+
+    // if (!isNaN(Number(debouncedSearchedText))) {
+    //   // If the search input is a number (ID), hit the search API with the ID parameter
+    //   fetch(`api/search?id=${debouncedSearchedText}`)
+    //     .then((response) => response.json())
+    //     .then((data) => {
+    //       // Do something with the search results
+    //     });
+    // } else {
+    //   // If the search input is a string (name), hit the search API with the name parameter
+    //   fetch(`api/search?name=${debouncedSearchedText}`)
+    //     .then((response) => response.json())
+    //     .then((data) => {
+    //       // Do something with the search results
+    //     });
+    // }
   }, [debouncedSearchedText]);
 
   useEffect(() => {
