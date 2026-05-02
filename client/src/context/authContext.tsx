@@ -1,70 +1,174 @@
-import {
-  createUserWithEmailAndPassword,
-  getAuth,
-  onAuthStateChanged,
-  signInWithEmailAndPassword,
-  signOut,
-  updateProfile,
-  User,
-} from "firebase/auth";
-import {getFirestore} from "firebase/firestore"
 import React, { createContext, useContext, useEffect, useState } from "react";
-import "../../firebase";
+import { useNavigate } from "react-router-dom";
 
-// prepare the data layer
-export const AuthContext = createContext<any>(null);
+const API_URL = "http://localhost:7000/api/v1/auth";
 
-// Wrap our app and provide the data layer
+export interface User {
+  id: string;
+  fullName: string;
+  username: string;
+  email: string;
+  role: "doctor" | "patient" | "diagnostic_center";
+  avatar?: string;
+  specialty?: string;
+  dateOfBirth?: string;
+  gender?: string;
+  centerName?: string;
+}
+
+interface AuthContextType {
+  currentUser: User | null;
+  loading: boolean;
+  error: string | null;
+  login: (email: string, password: string) => Promise<void>;
+  register: (userData: RegisterData) => Promise<void>;
+  logout: () => Promise<void>;
+  clearError: () => void;
+}
+
+interface RegisterData {
+  fullName: string;
+  username: string;
+  email: string;
+  password: string;
+  role: "doctor" | "patient" | "diagnostic_center";
+  specialty?: string;
+  licenseNumber?: string;
+  dateOfBirth?: string;
+  gender?: string;
+  phone?: string;
+  address?: string;
+  centerName?: string;
+  centerLicense?: string;
+}
+
+export const AuthContext = createContext<AuthContextType | null>(null);
+
 export function AuthProvider({ children }: { children: React.ReactNode }) {
+  const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
-  const [currentUser, setCurrentUser] = useState<Object>();
+  const [error, setError] = useState<string | null>(null);
+  const navigate = useNavigate();
 
-  // authState change handling
+  // Check for existing token on mount
   useEffect(() => {
-    const auth = getAuth();
-    onAuthStateChanged(auth, (user) => {
-      setCurrentUser(user as User);
+    const token = localStorage.getItem("token");
+    if (token) {
+      fetchCurrentUser();
+    } else {
       setLoading(false);
-    });
-  });
+    }
+  }, []);
 
-  //signup function
-  async function signup(email: string, password: string, username: string) {
-    const auth = getAuth();
-    await createUserWithEmailAndPassword(auth, email, password);
+  const fetchCurrentUser = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      const response = await fetch(`${API_URL}/me`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
 
-    // update user
-    await updateProfile(auth.currentUser as User, {
-      displayName: username,
-    });
+      if (response.ok) {
+        const data = await response.json();
+        setCurrentUser(data.data.user);
+      } else {
+        localStorage.removeItem("token");
+      }
+    } catch (err) {
+      console.error("Failed to fetch user:", err);
+      localStorage.removeItem("token");
+    } finally {
+      setLoading(false);
+    }
+  };
 
-    const user = auth.currentUser;
-    setCurrentUser({
-      ...user,
-    });
-  }
-  //signin
+  const login = async (email: string, password: string) => {
+    setError(null);
+    setLoading(true);
+    try {
+      const response = await fetch(`${API_URL}/login`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email, password }),
+      });
 
-  async function signin(email: string, password: string) {
-    const auth = getAuth();
-    await signInWithEmailAndPassword(auth, email, password);
+      const data = await response.json();
 
-    const user = auth.currentUser;
-    setCurrentUser({
-      ...user,
-    });
-  }
+      if (!response.ok) {
+        throw new Error(data.message || "Login failed");
+      }
 
-  //signout
-  async function signout() {
-    const auth = getAuth();
-    await signOut(auth);
-  }
+      localStorage.setItem("token", data.data.token);
+      setCurrentUser(data.data.user);
+      navigate("/");
+    } catch (err: any) {
+      setError(err.message);
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const register = async (userData: RegisterData) => {
+    setError(null);
+    setLoading(true);
+    try {
+      const response = await fetch(`${API_URL}/register`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(userData),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || "Registration failed");
+      }
+
+      localStorage.setItem("token", data.data.token);
+      setCurrentUser(data.data.user);
+      navigate("/");
+    } catch (err: any) {
+      setError(err.message);
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const logout = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      await fetch(`${API_URL}/logout`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+    } catch (err) {
+      console.error("Logout error:", err);
+    } finally {
+      localStorage.removeItem("token");
+      setCurrentUser(null);
+      navigate("/signin");
+    }
+  };
+
+  const clearError = () => setError(null);
+
   const value = {
     currentUser,
-    signup,
-    signin,
-    signout,
+    loading,
+    error,
+    login,
+    register,
+    logout,
+    clearError,
   };
 
   return (
@@ -74,57 +178,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   );
 }
 
-// pull auth information from the data layer
 export const useAuth = () => {
-  return useContext(AuthContext);
+  const context = useContext(AuthContext);
+  if (!context) {
+    throw new Error("useAuth must be used within an AuthProvider");
+  }
+  return context;
 };
-
-
-
-// it's for some firebase firestore
-// const startDate = new Date("2022-01-01T00:00:00.000Z");
-// const endDate = new Date("2022-12-31T23:59:59.999Z");
-
-// const query = firebase
-//   .firestore()
-//   .collection("collection_name")
-//   .where("timestamp", ">=", startDate)
-//   .where("timestamp", "<=", endDate);
-
-// query.get().then((snapshot) => {
-//   snapshot.forEach((doc) => {
-//     console.log(doc.data());
-//   });
-// });
-
-// import firebase from "firebase/app";
-// import "firebase/firestore";
-
-// // Initialize Firebase
-// const firebaseConfig = {
-//   apiKey: "YOUR_API_KEY",
-//   authDomain: "YOUR_AUTH_DOMAIN",
-//   databaseURL: "YOUR_DATABASE_URL",
-//   projectId: "YOUR_PROJECT_ID",
-//   storageBucket: "YOUR_STORAGE_BUCKET",
-//   messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-//   appId: "YOUR_APP_ID",
-// };
-
-// firebase.initializeApp(firebaseConfig);
-
-// // Get a reference to the Firestore instance
-// const db = firebase.firestore();
-
-// // Perform a query
-// db.collection("users")
-//   .where("age", ">", 30)
-//   .get()
-//   .then((querySnapshot) => {
-//     querySnapshot.forEach((doc) => {
-//       console.log(doc.id, " => ", doc.data());
-//     });
-//   })
-//   .catch((error) => {
-//     console.log("Error getting documents: ", error);
-//   });

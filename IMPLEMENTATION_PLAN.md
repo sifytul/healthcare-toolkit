@@ -37,10 +37,10 @@ A healthcare management tool to create a database of antibiograms for improving 
 - [x] 1.5 Create auth routes (signup/login) with role selection
 
 ### Phase 2: Frontend Auth Integration (Priority: High)
-- [ ] 2.1 Update authContext to handle roles and protect routes
-- [ ] 2.2 Create role-based route guards
-- [ ] 2.3 Build sign-in page with role selection
-- [ ] 2.4 Update Navbar based on user role
+- [x] 2.1 Update authContext to handle roles and protect routes
+- [x] 2.2 Create role-based route guards
+- [x] 2.3 Build sign-in page with role selection
+- [x] 2.4 Update Navbar based on user role
 
 ### Phase 3: Patient Management (Priority: High)
 - [ ] 3.1 Create Patient API routes (CRUD)
