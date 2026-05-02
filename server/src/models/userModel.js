@@ -1,4 +1,5 @@
 import { model, Schema } from "mongoose";
+import bcrypt from "bcryptjs";
 
 const userSchema = new Schema({
   fullName: {
@@ -7,7 +8,6 @@ const userSchema = new Schema({
   },
   avatar: {
     type: String,
-    required: true,
     default:
       "https://m.media-amazon.com/images/M/MV5BYmQwYTc1ZDEtMzU3My00OTIzLWE1YmEtYmUyMmMzZTI2ZWNlXkEyXkFqcGdeQXVyOTgwMzk1MTA@._V1_.jpg",
   },
@@ -26,14 +26,66 @@ const userSchema = new Schema({
       "Provide a valid email",
     ],
   },
-  school: {
+  role: {
+    type: String,
+    enum: ["doctor", "patient", "diagnostic_center"],
+    default: "patient",
+  },
+  // Doctor-specific fields
+  specialty: {
     type: String,
   },
+  licenseNumber: {
+    type: String,
+  },
+  // Patient-specific fields
+  dateOfBirth: {
+    type: Date,
+  },
+  gender: {
+    type: String,
+    enum: ["male", "female", "other"],
+  },
+  phone: {
+    type: String,
+  },
+  address: {
+    type: String,
+  },
+  // Diagnostic center-specific fields
+  centerName: {
+    type: String,
+  },
+  centerLicense: {
+    type: String,
+  },
+  // Links to patient records (for doctors and diagnostic centers)
+  patients: [{
+    type: Schema.Types.ObjectId,
+    ref: "Patient",
+  }],
   password: {
     type: String,
     required: true,
   },
+}, {
+  timestamps: true,
 });
+
+// Hash password before saving
+userSchema.pre("save", async function (next) {
+  if (!this.isModified("password")) {
+    return next();
+  }
+  const salt = await bcrypt.genSalt(10);
+  this.password = await bcrypt.hash(this.password, salt);
+  next();
+});
+
+// Compare password method
+userSchema.methods.comparePassword = async function (enteredPassword) {
+  return await bcrypt.compare(enteredPassword, this.password);
+};
 
 const User = model("User", userSchema);
 
