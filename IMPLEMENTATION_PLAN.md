@@ -68,11 +68,11 @@ A healthcare management tool to create a database of antibiograms for improving 
 - [x] 1.3 Create Report model (antibiogram, radiology, lab results)
 - [x] 1.4 Implement JWT authentication with role-based middleware
 - [x] 1.5 Create auth routes (signup/login) with role selection
-- [ ] 1.6 Add role enum: Doctor / Patient / DiagnosticCenter / Admin
-- [ ] 1.7 Implement fine-grained permissions
-- [ ] 1.8 Add audit logging (who accessed what)
-- [ ] 1.9 Implement patient consent system
-- [ ] 1.10 Add session/device tracking
+- [x] 1.6 Add role enum: Doctor / Patient / DiagnosticCenter / Admin / Government Analyst
+- [x] 1.7 Implement fine-grained permissions (permissions.js with 12 permission types)
+- [x] 1.8 Add audit logging (auditLogModel.js + audit.js middleware)
+- [x] 1.9 Implement patient consent system (consentModel.js + controller + routes)
+- [x] 1.10 Add session/device tracking (sessionModel.js + auth updates)
 
 ### Phase 2: Frontend Auth Integration (Priority: High)
 
@@ -289,4 +289,6 @@ A healthcare management tool to create a database of antibiograms for improving 
 
 ## Current Implementation Status
 
-Phase 1 and 2 are complete (backend models & auth, frontend auth integration). Phase 3+ work is in progress.
+- Phase 1: Complete (auth & access control with permissions, audit logging, consent, sessions)
+- Phase 2: Complete (frontend auth integration)
+- Phase 3: In Progress (patient management)
