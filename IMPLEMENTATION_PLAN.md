@@ -9,6 +9,7 @@ A healthcare management tool to create a database of antibiograms for improving 
 ### User Roles
 
 1. **Doctor**
+
    - Access patient history
    - Diagnose and prescribe
    - Request peer review
@@ -16,15 +17,18 @@ A healthcare management tool to create a database of antibiograms for improving 
    - View all patient details
 
 2. **Patient**
+
    - View personal history
    - Upload diagnostic reports
    - Cannot delete records
 
 3. **Diagnostic Center**
+
    - Upload reports using patient ID
    - Cannot access full patient history
 
 4. **Admin** (Future)
+
    - Manage system
 
 5. **Government Analyst** (Future)
@@ -181,31 +185,40 @@ A healthcare management tool to create a database of antibiograms for improving 
 ## Infrastructure
 
 ### Backend
+
 - Node.js + Express
 - Python (for parsing engine and ML tasks) in future
 
 ### Frontend
+
 - React + TypeScript
 - Vite
 - Tailwind CSS
+- shadcn UI components
 - React Router v6
 
 ### Database
+
 - MongoDB (Mongoose ODM)
 
 ### Storage
+
 - MinIO / Amazon S3
 
 ### Messaging
+
 - Kafka
 
 ### Cache
+
 - Redis
 
 ### Search
+
 - Elasticsearch
 
 ### DevOps
+
 - Docker
 - Kubernetes
 - CI/CD
@@ -216,6 +229,7 @@ A healthcare management tool to create a database of antibiograms for improving 
 ## System Architecture
 
 ### Services
+
 - Auth Service
 - Patient Service
 - Report Service
@@ -229,12 +243,14 @@ A healthcare management tool to create a database of antibiograms for improving 
 ## API Endpoints Structure
 
 ### Auth (/api/v1/auth)
+
 - POST /register
 - POST /login
 - POST /logout
 - GET /me
 
 ### Patients (/api/v1/patients)
+
 - GET / (list)
 - POST / (create)
 - GET /:id (detail)
@@ -242,33 +258,39 @@ A healthcare management tool to create a database of antibiograms for improving 
 - DELETE /:id
 
 ### Visits (/api/v1/visits)
+
 - GET /patient/:patientId
 - POST /
 - PUT /:id
 
 ### Diagnoses (/api/v1/diagnoses)
+
 - GET /patient/:patientId
 - POST /
 - PUT /:id
 
 ### Prescriptions (/api/v1/prescriptions)
+
 - GET /patient/:patientId
 - POST /
 - PUT /:id
 
 ### Reports (/api/v1/reports)
+
 - GET /patient/:patientId
 - POST / (upload)
 - GET /:id
 - GET /:id/download
 
 ### Antibiograms (/api/v1/antibiograms)
+
 - GET / (analytics)
 - POST /
 - GET /by-microorganism/:microorganism
 - GET /by-region/:region
 
 ### Reviews (/api/v1/reviews)
+
 - GET /patient/:patientId
 - POST / (create request)
 - PUT /:id (approve/reject)
@@ -279,6 +301,7 @@ A healthcare management tool to create a database of antibiograms for improving 
 ## Execution Roadmap
 
 ### Week 1
+
 - Patient domain + timeline UI
 - Report upload + storage
 - Parsing service (CBC + Antibiogram)
