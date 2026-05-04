@@ -142,11 +142,11 @@ A healthcare management tool to create a database of antibiograms for improving 
 
 ### Phase 8: Multi-Doctor Review System (Priority: Low)
 
-- [ ] 8.1 Create Review workflow model
-- [ ] 8.2 Implement review request system
+- [x] 8.1 Create Review workflow model
+- [x] 8.2 Implement review request system
 - [ ] 8.3 Build review interface for doctors
-- [ ] 8.4 Workflow: Doctor submits diagnosis → Reviewed by General Physician → Specialist → Consultant
-- [ ] 8.5 Implement review features: comments, approval/rejection, version tracking
+- [x] 8.4 Workflow: Doctor submits diagnosis → Reviewed by General Physician → Specialist → Consultant
+- [x] 8.5 Implement review features: comments, approval/rejection, version tracking
 
 ### Phase 9: Diagnostic Center Portal (Priority: Low)
 
@@ -291,10 +291,14 @@ A healthcare management tool to create a database of antibiograms for improving 
 
 ### Reviews (/api/v1/reviews)
 
+- GET / (list all)
+- GET /my-pending (pending for current user)
 - GET /patient/:patientId
+- GET /:id (detail)
 - POST / (create request)
-- PUT /:id (approve/reject)
+- PUT /:id/status (approve/reject/revision)
 - POST /:id/comments
+- DELETE /:id
 
 ---
 

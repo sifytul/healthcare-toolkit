@@ -7,6 +7,7 @@ import diagnosisRouter from "./diagnosisRoutes.js";
 import prescriptionRouter from "./prescriptionRoutes.js";
 import reportRouter from "./reportRoutes.js";
 import antibiogramRouter from "./antibiogramRoutes.js";
+import reviewRouter from "./reviewRoutes.js";
 
 const router = Router()
 router.use("/user", userRouter)
@@ -17,5 +18,6 @@ router.use("/diagnoses", diagnosisRouter)
 router.use("/prescriptions", prescriptionRouter)
 router.use("/reports", reportRouter)
 router.use("/antibiograms", antibiogramRouter)
+router.use("/reviews", reviewRouter)
 
 export default router
