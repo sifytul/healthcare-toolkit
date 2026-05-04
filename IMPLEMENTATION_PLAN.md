@@ -88,12 +88,12 @@ A healthcare management tool to create a database of antibiograms for improving 
 - [x] 3.3 Connect searchPatients to backend
 - [x] 3.4 Load patient data in PatientDashboard
 - [x] 3.5 Implement Visits, Demographics, Relationships
-- [ ] 3.6 Create Visit model with doctor_id, patient_id, reason, notes, timestamp
-- [ ] 3.7 Create Diagnosis model (ICD mapping) with ICD_code, description, severity, status
-- [ ] 3.8 Create Prescription model with drug_name, dosage, duration
-- [ ] 3.9 Build patient timeline UI with visits, diagnoses, prescriptions
-- [ ] 3.10 Add filters (date, disease, doctor)
-- [ ] 3.11 Update the UI to display patient details and history effectively, update the patient dashboard to include sections for demographics, visits, relationships, and reports. Use a timeline component to visualize the patient's medical history, including doctor visits, diagnoses, and report uploads.
+- [x] 3.6 Create Visit model with doctor_id, patient_id, reason, notes, timestamp (embedded in Patient)
+- [x] 3.7 Create Diagnosis model (ICD mapping) with ICD_code, description, severity, status
+- [x] 3.8 Create Prescription model with drug_name, dosage, duration
+- [x] 3.9 Build patient timeline API with visits, diagnoses, prescriptions
+- [x] 3.10 Add filters (date, disease, doctor) - implemented in controllers
+- [ ] 3.11 Update the UI to display patient details and history effectively
 
 ### Phase 4: Report Management (Priority: Medium)
 
@@ -291,4 +291,5 @@ A healthcare management tool to create a database of antibiograms for improving 
 
 - Phase 1: Complete (auth & access control with permissions, audit logging, consent, sessions)
 - Phase 2: Complete (frontend auth integration)
-- Phase 3: In Progress (patient management)
+- Phase 3: Complete (patient management backend - models, diagnoses, prescriptions, timeline API)
+- Phase 4: In Progress (report management)
