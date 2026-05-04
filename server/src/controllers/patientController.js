@@ -1,4 +1,6 @@
 import Patient from "../models/patientModel.js";
+import Diagnosis from "../models/diagnosisModel.js";
+import Prescription from "../models/prescriptionModel.js";
 
 // Generate unique patient ID
 const generatePatientId = () => {
@@ -361,6 +363,116 @@ export const endVisit = async (req, res) => {
     });
   } catch (error) {
     console.error("EndVisit error:", error);
+    res.status(500).json({ message: error.message || "Server error" });
+  }
+};
+
+// Get patient timeline (visits, diagnoses, prescriptions combined)
+export const getPatientTimeline = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { startDate, endDate, type, page = 1, limit = 50 } = req.query;
+
+    const patient = await Patient.findOne({ patientId: id });
+    if (!patient) {
+      return res.status(404).json({ message: "Patient not found" });
+    }
+
+    // Date range for filtering
+    let dateFilter = {};
+    if (startDate || endDate) {
+      if (startDate) dateFilter.$gte = new Date(startDate);
+      if (endDate) dateFilter.$lte = new Date(endDate);
+    }
+
+    // Build timeline from different sources
+    const timeline = [];
+    const skip = (page - 1) * limit;
+
+    // Get visits if requested (default all)
+    if (!type || type === "visit") {
+      const visitQuery = { patient: patient._id };
+      if (startDate || endDate) {
+        visitQuery.createdAt = dateFilter;
+      }
+      const visits = await Patient.aggregate([
+        { $match: { patientId: id } },
+        { $unwind: "$visits" },
+        { $match: dateFilter.start ? { "visits.createdAt": dateFilter } : {} },
+        { $sort: { "visits.createdAt": -1 } },
+        { $skip: skip },
+        { $limit: Number(limit) },
+      ]);
+      visits.forEach(v => {
+        if (v.visits) {
+          timeline.push({
+            type: "visit",
+            data: v.visits,
+            date: v.visits.createdAt,
+          });
+        }
+      });
+    }
+
+    // Get diagnoses if requested
+    if (!type || type === "diagnosis") {
+      const diagQuery = { patient: patient._id };
+      if (startDate || endDate) {
+        diagQuery.createdAt = dateFilter;
+      }
+      const diagnoses = await Diagnosis.find(diagQuery)
+        .populate("diagnosedBy", "fullName")
+        .sort("-createdAt")
+        .skip(skip)
+        .limit(Number(limit));
+      diagnoses.forEach(d => {
+        timeline.push({
+          type: "diagnosis",
+          data: d,
+          date: d.createdAt,
+        });
+      });
+    }
+
+    // Get prescriptions if requested
+    if (!type || type === "prescription") {
+      const prescQuery = { patient: patient._id };
+      if (startDate || endDate) {
+        prescQuery.createdAt = dateFilter;
+      }
+      const prescriptions = await Prescription.find(prescQuery)
+        .populate("prescribedBy", "fullName")
+        .sort("-createdAt")
+        .skip(skip)
+        .limit(Number(limit));
+      prescriptions.forEach(p => {
+        timeline.push({
+          type: "prescription",
+          data: p,
+          date: p.createdAt,
+        });
+      });
+    }
+
+    // Sort by date descending
+    timeline.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+    // Apply limit
+    const limitedTimeline = timeline.slice(0, Number(limit));
+
+    res.json({
+      success: true,
+      data: {
+        timeline: limitedTimeline,
+        pagination: {
+          page: Number(page),
+          limit: Number(limit),
+          total: timeline.length,
+        },
+      },
+    });
+  } catch (error) {
+    console.error("GetTimeline error:", error);
     res.status(500).json({ message: error.message || "Server error" });
   }
 };

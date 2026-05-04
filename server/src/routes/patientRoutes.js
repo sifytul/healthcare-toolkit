@@ -9,6 +9,7 @@ import {
   addRelationship,
   addMedication,
   endVisit,
+  getPatientTimeline,
 } from "../controllers/patientController.js";
 import { verifyToken, authorize } from "../middleware/auth.js";
 
@@ -35,5 +36,8 @@ router.post("/:id/relationships", addRelationship);
 
 // Medication management
 router.post("/:id/medications", addMedication);
+
+// Timeline (combined visits, diagnoses, prescriptions)
+router.get("/:id/timeline", getPatientTimeline);
 
 export default router;
