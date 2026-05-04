@@ -14,7 +14,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cors());
 app.use(cookieParser());
-app.use(helmet())
+app.use(helmet());
 
 // dbConnection
 connectDB();
@@ -22,9 +22,8 @@ connectDB();
 app.use("/api/v1", allRoutes);
 
 app.get("/health", (req, res) => {
-  res.status(200).json({message: "Everything is allright"});
+  res.status(200).json({ message: "Everything is allright" });
 });
-
 
 mongoose.connection.once("open", () => {
   console.log("DB connected");
