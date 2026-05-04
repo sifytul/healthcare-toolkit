@@ -6,13 +6,16 @@ import helmet from "helmet";
 import mongoose from "mongoose";
 import path from "path";
 import { fileURLToPath } from "url";
+import { createServer } from "http";
 import connectDB from "./src/config/dbConnection.js";
 import allRoutes from "./src/routes/allRoutes.js";
+import { initializeWebSocket } from "./src/services/notificationService.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const app = express();
+const server = createServer(app);
 
 // middleware in use
 app.use(express.json());
@@ -35,7 +38,9 @@ app.get("/health", (req, res) => {
 
 mongoose.connection.once("open", () => {
   console.log("DB connected");
-  app.listen(process.env.PORT || 7000, () => {
+  // Initialize WebSocket
+  initializeWebSocket(server);
+  server.listen(process.env.PORT || 7000, () => {
     console.log(`Server is listening on PORT:${process.env.PORT || 7000}`);
   });
 });

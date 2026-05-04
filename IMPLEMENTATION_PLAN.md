@@ -166,8 +166,8 @@ A healthcare management tool to create a database of antibiograms for improving 
 
 ### Phase 11: Notifications (Priority: Low)
 
-- [ ] 11.1 Implement WebSocket service
-- [ ] 11.2 Add notification system for:
+- [x] 11.1 Implement WebSocket service
+- [x] 11.2 Add notification system for:
   - Report upload alerts
   - Review requests
   - Critical value alerts
