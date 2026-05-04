@@ -1,5 +1,5 @@
 import User from "../models/userModel.js";
-import { generateToken } from "../middleware/auth.js";
+import { generateToken, createSession, revokeAllSessions, getActiveSessions, revokeSession } from "../middleware/auth.js";
 
 // Helper to set token cookie
 const setTokenCookie = (res, token) => {
@@ -23,7 +23,7 @@ export const register = async (req, res) => {
     }
 
     // Validate role
-    const validRoles = ["doctor", "patient", "diagnostic_center"];
+    const validRoles = ["doctor", "patient", "diagnostic_center", "admin", "government_analyst"];
     if (!validRoles.includes(role)) {
       return res.status(400).json({ message: "Invalid role" });
     }
@@ -51,6 +51,9 @@ export const register = async (req, res) => {
     // Generate token
     const token = generateToken(user);
     setTokenCookie(res, token);
+
+    // Create session record
+    await createSession(user, token, req);
 
     res.status(201).json({
       success: true,
@@ -92,6 +95,9 @@ export const login = async (req, res) => {
     // Generate token
     const token = generateToken(user);
     setTokenCookie(res, token);
+
+    // Create session record
+    await createSession(user, token, req);
 
     res.json({
       success: true,
@@ -159,11 +165,74 @@ export const updateProfile = async (req, res) => {
   }
 };
 
-// Logout (clear cookie)
+// Logout (clear cookie and revoke session)
 export const logout = async (req, res) => {
+  const token = req.cookies.token || req.headers.authorization?.split(" ")[1];
+  if (token && req.user?.id) {
+    await revokeSession(token, req.user.id);
+  }
   res.clearCookie("token");
   res.json({
     success: true,
     message: "Logged out successfully",
   });
+};
+
+// Get active sessions
+export const getSessions = async (req, res) => {
+  try {
+    const sessions = await getActiveSessions(req.user.id);
+
+    // Hide token from response
+    const sanitized = sessions.map(s => ({
+      _id: s._id,
+      device: s.device,
+      browser: s.browser,
+      os: s.os,
+      ipAddress: s.ipAddress,
+      lastActive: s.lastActive,
+      isCurrentSession: s.isCurrentSession,
+      createdAt: s.createdAt,
+    }));
+
+    res.json({
+      success: true,
+      data: { sessions: sanitized },
+    });
+  } catch (error) {
+    console.error("Get sessions error:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+// Revoke a specific session
+export const revokeUserSession = async (req, res) => {
+  try {
+    const { sessionId } = req.params;
+    await revokeSession(sessionId, req.user.id);
+
+    res.json({
+      success: true,
+      message: "Session revoked successfully",
+    });
+  } catch (error) {
+    console.error("Revoke session error:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+// Revoke all other sessions
+export const revokeAllOtherSessions = async (req, res) => {
+  try {
+    const token = req.cookies.token || req.headers.authorization?.split(" ")[1];
+    await revokeAllSessions(req.user.id, token);
+
+    res.json({
+      success: true,
+      message: "All other sessions revoked successfully",
+    });
+  } catch (error) {
+    console.error("Revoke all sessions error:", error);
+    res.status(500).json({ message: "Server error" });
+  }
 };
