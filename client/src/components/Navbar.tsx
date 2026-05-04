@@ -1,14 +1,18 @@
 import { Fragment, useState } from "react";
-import {
-  BsPersonCircle,
-  FaHome,
-  FiMenu,
-  MdPlayArrow,
-  FiLogOut,
-} from "../assets/icons/react-icons";
-
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "../context/authContext";
+import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { Home, Menu, User, LogOut, Users, Upload, HelpCircle, ChevronRight } from "lucide-react";
 
 const Navbar = ({
   sideBar,
@@ -18,12 +22,11 @@ const Navbar = ({
   sideBarHandler: () => void;
 }) => {
   const { currentUser, logout } = useAuth();
-  const navigate = useNavigate();
   const location = useLocation();
   const [showDropdown, setShowDropdown] = useState(false);
 
-  let navigatedPath = [];
-  if (location.pathname == "/") {
+  let navigatedPath: string[] = [];
+  if (location.pathname === "/") {
     navigatedPath.push("root");
   } else {
     let navigatedArray = location.pathname.split("/");
@@ -51,114 +54,167 @@ const Navbar = ({
     return labels[role] || role;
   };
 
-  return (
-    <div className="h-14 border-b border-amber-100 flex items-center gap-4 xl:justify-between">
-      <FiMenu
-        onClick={sideBarHandler}
-        className={`text-primary ${
-          sideBar ? "hidden" : "inline-block"
-        } xl:hidden text-3xl cursor-pointer ml-4`}
-      />
+  const getInitials = (name: string) => {
+    return name
+      .split(" ")
+      .map((n) => n[0])
+      .join("")
+      .toUpperCase()
+      .slice(0, 2);
+  };
 
-      {/* navigation bar  */}
+  return (
+    <div className="h-14 border-b border-orange-100 flex items-center gap-4 xl:justify-between bg-white">
+      {/* Mobile menu button */}
+      <Sheet>
+        <SheetTrigger asChild>
+          <Button
+            variant="ghost"
+            size="icon"
+            className={`xl:hidden ml-2 ${sideBar ? "hidden" : "inline-flex"}`}
+          >
+            <Menu className="h-5 w-5" />
+          </Button>
+        </SheetTrigger>
+        <SheetContent side="left" className="w-64">
+          <div className="flex flex-col gap-4 mt-8">
+            <Link to="/">
+              <Button variant="ghost" className="w-full justify-start">
+                <Home className="h-4 w-4 mr-2" />
+                Home
+              </Button>
+            </Link>
+            {currentUser?.role === "doctor" && (
+              <Link to="/search-patient">
+                <Button variant="ghost" className="w-full justify-start">
+                  <Users className="h-4 w-4 mr-2" />
+                  Patients
+                </Button>
+              </Link>
+            )}
+            {currentUser?.role === "diagnostic_center" && (
+              <Link to="/upload-report">
+                <Button variant="ghost" className="w-full justify-start">
+                  <Upload className="h-4 w-4 mr-2" />
+                  Upload Report
+                </Button>
+              </Link>
+            )}
+            <Button variant="ghost" className="w-full justify-start">
+              <HelpCircle className="h-4 w-4 mr-2" />
+              Help
+            </Button>
+          </div>
+        </SheetContent>
+      </Sheet>
+
+      {/* Desktop menu button */}
+      <Button
+        variant="ghost"
+        size="icon"
+        onClick={sideBarHandler}
+        className={`xl:hidden ${sideBar ? "hidden" : "inline-flex"}`}
+      >
+        <Menu className="h-5 w-5" />
+      </Button>
+
+      {/* Breadcrumb navigation */}
       <div className="flex items-center">
         {navigatedPath.map((value, ind) => (
           <Fragment key={ind}>
             {value === "root" ? (
-              <button
+              <Link
+                to="/"
                 className={`${
-                  ind == navigatedPath.length - 1
-                    ? "bg-primary text-white"
-                    : "bg-white text-primary border border-primary"
-                } w-fit px-2`}
+                  ind === navigatedPath.length - 1
+                    ? "bg-orange-500 text-white"
+                    : "bg-white text-orange-500 border border-orange-500"
+                } w-fit px-2 py-1 rounded flex items-center justify-center`}
               >
-                <FaHome className=" text-xl" />
-              </button>
+                <Home className="h-4 w-4" />
+              </Link>
             ) : (
               <>
-                <MdPlayArrow className="text-primary" />
-                <button
+                <ChevronRight className="text-orange-500 h-4 w-4" />
+                <span
                   className={`${
-                    ind == navigatedPath.length - 1
-                      ? "bg-primary text-white"
-                      : "bg-secondary text-primary"
-                  } px-2 font-bold text-sm`}
+                    ind === navigatedPath.length - 1
+                      ? "bg-orange-500 text-white"
+                      : "bg-orange-50 text-orange-600"
+                  } px-2 py-1 rounded font-bold text-sm`}
                 >
                   {value}
-                </button>
+                </span>
               </>
             )}
           </Fragment>
         ))}
       </div>
-      <nav className="hidden xl:inline-block px-4">
-        <ul className="flex gap-4 items-center">
-          <Link to="/">
-            <li>Home</li>
-          </Link>
-          {currentUser && (
-            <>
-              {currentUser.role === "doctor" && (
-                <>
-                  <Link to="/search-patient">
-                    <li>Patients</li>
-                  </Link>
-                </>
-              )}
-              {currentUser.role === "diagnostic_center" && (
-                <>
-                  <Link to="/upload-report">
-                    <li>Upload Report</li>
-                  </Link>
-                </>
-              )}
-            </>
-          )}
-          <Link to="#">
-            <li>Help</li>
-          </Link>
 
-          {currentUser ? (
-            <div className="relative">
-              <button
-                onClick={() => setShowDropdown(!showDropdown)}
-                className="flex items-center gap-2"
-              >
-                <BsPersonCircle className="text-primary text-2xl" />
-                <span className="text-sm">{currentUser.fullName}</span>
-              </button>
+      {/* Desktop navigation */}
+      <nav className="hidden xl:flex items-center gap-2 px-4">
+        <Link to="/">
+          <Button variant="ghost">Home</Button>
+        </Link>
+        {currentUser && (
+          <>
+            {currentUser.role === "doctor" && (
+              <Link to="/search-patient">
+                <Button variant="ghost">Patients</Button>
+              </Link>
+            )}
+            {currentUser.role === "diagnostic_center" && (
+              <Link to="/upload-report">
+                <Button variant="ghost">Upload Report</Button>
+              </Link>
+            )}
+          </>
+        )}
+        <Button variant="ghost">Help</Button>
 
-              {showDropdown && (
-                <div className="absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded-md shadow-lg z-50">
-                  <div className="px-4 py-2 border-b border-gray-200">
-                    <p className="text-sm font-semibold">{currentUser.fullName}</p>
-                    <p className="text-xs text-gray-500">
-                      {getRoleLabel(currentUser.role)}
-                    </p>
-                  </div>
-                  <Link
-                    to="/profile"
-                    className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                    onClick={() => setShowDropdown(false)}
-                  >
-                    Profile
-                  </Link>
-                  <button
-                    onClick={handleLogout}
-                    className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100 flex items-center gap-2"
-                  >
-                    <FiLogOut />
-                    Log out
-                  </button>
+        {currentUser ? (
+          <DropdownMenu open={showDropdown} onOpenChange={setShowDropdown}>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" className="flex items-center gap-2 ml-2">
+                <Avatar className="h-8 w-8">
+                  <AvatarFallback className="bg-orange-100 text-orange-600">
+                    {getInitials(currentUser.fullName)}
+                  </AvatarFallback>
+                </Avatar>
+                <span className="text-sm font-medium">{currentUser.fullName}</span>
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-56">
+              <DropdownMenuLabel>
+                <div className="flex flex-col">
+                  <span>{currentUser.fullName}</span>
+                  <span className="text-xs font-normal text-gray-500">
+                    {getRoleLabel(currentUser.role)}
+                  </span>
                 </div>
-              )}
-            </div>
-          ) : (
-            <Link to="/signin">
-              <li>Log in</li>
-            </Link>
-          )}
-        </ul>
+              </DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem asChild>
+                <Link to="/profile" className="cursor-pointer">
+                  <User className="mr-2 h-4 w-4" />
+                  Profile
+                </Link>
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem
+                onClick={handleLogout}
+                className="text-red-600 cursor-pointer"
+              >
+                <LogOut className="mr-2 h-4 w-4" />
+                Log out
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        ) : (
+          <Link to="/signin">
+            <Button variant="ghost">Log in</Button>
+          </Link>
+        )}
       </nav>
     </div>
   );

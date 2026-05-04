@@ -1,57 +1,74 @@
-import {RxCross1 } from '../assets/icons/react-icons'
 import { Link } from "react-router-dom";
+import { Button } from "@/components/ui/button";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import {
+  UserPlus,
+  Search,
+  Activity,
+  Calendar,
+  CalendarDays,
+  MapPin,
+  FileText,
+  BookOpen,
+  Settings,
+  X,
+} from "lucide-react";
 
-const Sidebar = ({
-  sideBar,
-  sideBarHandler,
-}: {
+interface SidebarProps {
   sideBar: Boolean;
   sideBarHandler: () => void;
-}) => {
+}
+
+const menuItems = [
+  { path: "create-patient", label: "Create Patient", icon: UserPlus },
+  { path: "search-patient", label: "Search Patient", icon: Search },
+  { path: "active-visit", label: "Active Visit", icon: Activity },
+  { path: "schedule", label: "Schedule", icon: Calendar },
+  { path: "appointments", label: "Appointments", icon: CalendarDays },
+  { path: "manage-locations", label: "Manage Locations", icon: MapPin },
+  { path: "radiology-reports", label: "Radiology Reports", icon: FileText },
+  { path: "dictionary", label: "Dictionary", icon: BookOpen },
+  { path: "settings", label: "Settings", icon: Settings },
+];
+
+const Sidebar = ({ sideBar, sideBarHandler }: SidebarProps) => {
   return (
     <>
-      <div className="flex justify-between items-center">
-        <img
-          className="h-[70px] mx-3 my-1"
-          src=".\src\assets\logo.png"
-          alt="Healthcare"
-        />
-        <div onClick={sideBarHandler}>
-          {sideBar && (
-            <RxCross1 className={`text-3xl text-primary xl:hidden`} />
-          )}
-        </div>
+      {/* Header */}
+      <div className="flex justify-between items-center p-2">
+        <Link to="/" className="flex items-center">
+          <img
+            className="h-[70px] w-auto"
+            src="./src/assets/logo.png"
+            alt="Healthcare"
+          />
+        </Link>
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={sideBarHandler}
+          className={`xl:hidden ${sideBar ? "inline-flex" : "hidden"}`}
+        >
+          <X className="h-5 w-5" />
+        </Button>
       </div>
 
-      <div className="mt-44 ">
-        <Link to="create-patient">
-          <p className="sidebar-menu-option">create patient</p>
-        </Link>
-        <Link to="search-patient">
-          <p className="sidebar-menu-option">search patient</p>
-        </Link>
-        <Link to="active-visit">
-          <p className="sidebar-menu-option">active visit</p>
-        </Link>
-        <Link to="schedule">
-          <p className="sidebar-menu-option">schedule</p>
-        </Link>
-        <Link to="appointments">
-          <p className="sidebar-menu-option">appointments</p>
-        </Link>
-        <Link to="manage-locations">
-          <p className="sidebar-menu-option">manage locations</p>
-        </Link>
-        <Link to="radiology-reports">
-          <p className="sidebar-menu-option">radiology reports</p>
-        </Link>
-        <Link to="dictionary">
-          <p className="sidebar-menu-option">dictionary</p>
-        </Link>
-        <Link to="settings">
-          <p className="sidebar-menu-option">settings</p>
-        </Link>
-      </div>
+      {/* Menu Items */}
+      <ScrollArea className="h-[calc(100vh-120px)]">
+        <div className="space-y-1 p-2">
+          {menuItems.map((item) => (
+            <Link key={item.path} to={item.path}>
+              <Button
+                variant="ghost"
+                className="w-full justify-start text-left font-normal text-sm uppercase tracking-wide text-gray-600 hover:bg-orange-50 hover:text-orange-600"
+              >
+                <item.icon className="h-4 w-4 mr-3" />
+                {item.label}
+              </Button>
+            </Link>
+          ))}
+        </div>
+      </ScrollArea>
     </>
   );
 };
