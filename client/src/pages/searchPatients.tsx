@@ -3,60 +3,40 @@ import { Link } from "react-router-dom";
 import { MdPersonSearch } from "../assets/icons/react-icons";
 import SearchField from "../components/shared/SearchField";
 
-interface patientObj {
-  patientId: number;
-  name: string;
-  age: number;
-  dateofbirth: string;
+const API_URL = "http://localhost:7000/api/v1/patients";
+
+interface Patient {
+  patientId: string;
+  firstName: string;
+  lastName: string;
+  dateOfBirth: string;
   gender: string;
-  dateofdeath: string;
-  major_issue: string;
+  phone?: string;
+  email?: string;
 }
-type patientDataType = {
-  [key: number]: patientObj;
-};
-const patient: patientDataType = {
-  1: {
-    patientId: 1,
-    name: "Elena Risteska",
-    age: 27,
-    dateofbirth: "11-11-1995",
-    gender: "female",
-    dateofdeath: "-",
-    major_issue: "none",
-  },
-  2: {
-    patientId: 2,
-    name: "Steven Smith",
-    age: 27,
-    dateofbirth: "11-11-1995",
-    gender: "male",
-    dateofdeath: "-",
-    major_issue: "none",
-  },
-  3: {
-    patientId: 3,
-    name: "Mujarabani",
-    age: 27,
-    dateofbirth: "11-11-1995",
-    gender: "male",
-    dateofdeath: "-",
-    major_issue: "none",
-  },
-};
 
 const SearchPatients = () => {
-  const [patientData, setPatientData] = useState<patientObj[]>([]);
+  const [patients, setPatients] = useState<Patient[]>([]);
   const [searchedText, setSearchedText] = useState<string>("");
-  const [debouncedSearchedText, setDebouncedSearchedText] =
-    useState(searchedText);
+  const [debouncedSearchedText, setDebouncedSearchedText] = useState(searchedText);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
   const inputRef = useRef<HTMLInputElement>(null);
+
+  const getAuthHeaders = () => {
+    const token = localStorage.getItem("token");
+    return {
+      "Content-Type": "application/json",
+      Authorization: token ? `Bearer ${token}` : "",
+    };
+  };
 
   const changeHandler = (e: ChangeEvent<HTMLInputElement>) => {
     setSearchedText(e.target.value);
   };
 
+  // Debounce search
   useEffect(() => {
     const timeoutId = setTimeout(() => {
       setDebouncedSearchedText(searchedText);
@@ -66,29 +46,35 @@ const SearchPatients = () => {
     };
   }, [searchedText]);
 
+  // Fetch patients on search
   useEffect(() => {
-    const pt = patient[Number(debouncedSearchedText)];
-    if (pt !== undefined) {
-      setPatientData([patient[Number(debouncedSearchedText)]]);
-    }
+    const fetchPatients = async () => {
+      setLoading(true);
+      setError("");
+      try {
+        const url = debouncedSearchedText
+          ? `${API_URL}?search=${encodeURIComponent(debouncedSearchedText)}&limit=10`
+          : `${API_URL}?limit=10`;
 
-    // This is the code to fetch the data
+        const response = await fetch(url, {
+          headers: getAuthHeaders(),
+        });
 
-    // if (!isNaN(Number(debouncedSearchedText))) {
-    //   // If the search input is a number (ID), hit the search API with the ID parameter
-    //   fetch(`api/search?id=${debouncedSearchedText}`)
-    //     .then((response) => response.json())
-    //     .then((data) => {
-    //       // Do something with the search results
-    //     });
-    // } else {
-    //   // If the search input is a string (name), hit the search API with the name parameter
-    //   fetch(`api/search?name=${debouncedSearchedText}`)
-    //     .then((response) => response.json())
-    //     .then((data) => {
-    //       // Do something with the search results
-    //     });
-    // }
+        if (!response.ok) {
+          throw new Error("Failed to fetch patients");
+        }
+
+        const data = await response.json();
+        setPatients(data.data.patients || []);
+      } catch (err: any) {
+        setError(err.message);
+        setPatients([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchPatients();
   }, [debouncedSearchedText]);
 
   useEffect(() => {
@@ -96,6 +82,30 @@ const SearchPatients = () => {
       inputRef.current.focus();
     }
   }, []);
+
+  // Calculate age from date of birth
+  const calculateAge = (dateOfBirth: string) => {
+    if (!dateOfBirth) return "N/A";
+    const today = new Date();
+    const birthDate = new Date(dateOfBirth);
+    let age = today.getFullYear() - birthDate.getFullYear();
+    const monthDiff = today.getMonth() - birthDate.getMonth();
+    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+      age--;
+    }
+    return age;
+  };
+
+  // Format date for display
+  const formatDate = (dateString: string) => {
+    if (!dateString) return "N/A";
+    const date = new Date(dateString);
+    return date.toLocaleDateString("en-GB", {
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
+    });
+  };
 
   return (
     <div className="m-4 lg:w-3/4">
@@ -108,62 +118,89 @@ const SearchPatients = () => {
         SearchIconComponent={MdPersonSearch}
       />
 
-      {searchedText && (
+      {loading && (
+        <p className="text-center py-4 text-gray-500">Loading patients...</p>
+      )}
+
+      {error && !loading && (
+        <div className="mt-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded">
+          {error}
+        </div>
+      )}
+
+      {!loading && !error && searchedText && (
         <p className="text-end">
-          Viewing result for <strong>"{searchedText}"</strong> - 1 page
+          Viewing result for <strong>"{searchedText}"</strong> - {patients.length} patients found
         </p>
       )}
-      <div className="m-4 overflow-x-auto">
-        <table className="mt-8 border-collapse shadow-md">
-          <thead>
-            <tr className="border-b bg-secondary text-gray-600">
-              <th>Id</th>
-              <th>Full Name</th>
-              <th>Age</th>
-              <th>Gender</th>
-              <th>Date of Birth</th>
-              {/* <th>Date of Death</th> */}
-              <th>Major Issue</th>
-            </tr>
-          </thead>
-          <tbody>
-            {patientData &&
-              patientData.map((patient) => (
-                <tr key={patient.patientId}>
-                  <td>
-                    <Link to={`patient-dashboard/${patient.patientId}`}>
-                      {patient?.patientId}
+
+      {!loading && !error && patients.length > 0 && (
+        <div className="m-4 overflow-x-auto">
+          <table className="mt-8 border-collapse shadow-md w-full">
+            <thead>
+              <tr className="border-b bg-secondary text-gray-600">
+                <th className="p-3 text-left">Id</th>
+                <th className="p-3 text-left">Full Name</th>
+                <th className="p-3 text-left">Age</th>
+                <th className="p-3 text-left">Gender</th>
+                <th className="p-3 text-left">Date of Birth</th>
+                <th className="p-3 text-left">Phone</th>
+              </tr>
+            </thead>
+            <tbody>
+              {patients.map((patient) => (
+                <tr key={patient.patientId} className="border-b hover:bg-gray-50">
+                  <td className="p-3">
+                    <Link
+                      to={`patient-dashboard/${patient.patientId}`}
+                      className="text-primary hover:underline"
+                    >
+                      {patient.patientId}
                     </Link>
                   </td>
-                  <td>
-                    <Link to={`patient-dashboard/${patient.patientId}`}>
-                      {patient?.name}
+                  <td className="p-3">
+                    <Link
+                      to={`patient-dashboard/${patient.patientId}`}
+                      className="text-primary hover:underline"
+                    >
+                      {patient.firstName} {patient.lastName}
                     </Link>
                   </td>
-                  <td>{patient?.age}</td>
-                  <td>{patient?.gender}</td>
-                  <td>{patient?.dateofbirth}</td>
-                  {/* <td>{patient.dateofdeath}</td> */}
-                  <td>{patient?.major_issue}</td>
+                  <td className="p-3">{calculateAge(patient.dateOfBirth)}</td>
+                  <td className="p-3 capitalize">{patient.gender}</td>
+                  <td className="p-3">{formatDate(patient.dateOfBirth)}</td>
+                  <td className="p-3">{patient.phone || "N/A"}</td>
                 </tr>
               ))}
-          </tbody>
-        </table>
-      </div>
-      <div className="flex justify-between my-4">
-        <p>
-          Show
-          <select>
-            <option>10</option>
-            <option>20</option>
-            <option>30</option>
-          </select>
-          entries
-        </p>
-        <p>
-          Showing {patientData.length} of {patientData.length} entries
-        </p>
-      </div>
+            </tbody>
+          </table>
+        </div>
+      )}
+
+      {!loading && !error && patients.length === 0 && searchedText && (
+        <p className="text-center py-8 text-gray-500">No patients found</p>
+      )}
+
+      {!loading && !error && patients.length === 0 && !searchedText && (
+        <p className="text-center py-8 text-gray-500">Start typing to search patients</p>
+      )}
+
+      {patients.length > 0 && (
+        <div className="flex justify-between my-4">
+          <p>
+            Show
+            <select className="ml-2 border rounded px-2 py-1">
+              <option>10</option>
+              <option>20</option>
+              <option>30</option>
+            </select>
+            entries
+          </p>
+          <p>
+            Showing {patients.length} patients
+          </p>
+        </div>
+      )}
     </div>
   );
 };

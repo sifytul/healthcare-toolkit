@@ -43,11 +43,11 @@ A healthcare management tool to create a database of antibiograms for improving 
 - [x] 2.4 Update Navbar based on user role
 
 ### Phase 3: Patient Management (Priority: High)
-- [ ] 3.1 Create Patient API routes (CRUD)
-- [ ] 3.2 Connect createPatient page to backend
-- [ ] 3.3 Connect searchPatients to backend
-- [ ] 3.4 Load patient data in PatientDashboard
-- [ ] 3.5 Implement Visits, Demographics, Relationships
+- [x] 3.1 Create Patient API routes (CRUD)
+- [x] 3.2 Connect createPatient page to backend
+- [x] 3.3 Connect searchPatients to backend
+- [x] 3.4 Load patient data in PatientDashboard
+- [x] 3.5 Implement Visits, Demographics, Relationships
 
 ### Phase 4: Report Management (Priority: Medium)
 - [ ] 4.1 Create Report model and API routes

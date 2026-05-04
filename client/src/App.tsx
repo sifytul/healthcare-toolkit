@@ -1,5 +1,4 @@
 import { Route, Routes } from "react-router-dom";
-import HeroSection from "./components/HeroSection";
 import Welcome from "./components/Welcome";
 import Home from "./pages/Home";
 import PageNotFound from "./pages/PageNotFound";
@@ -14,6 +13,7 @@ import Visits from "./pages/PatientComponents/Visits";
 import PatientDashboard from "./pages/PatientDashboard";
 import SearchPatients from "./pages/searchPatients";
 import SignIn from "./pages/signIn";
+import CreatePatient from "./pages/createPatient";
 
 interface propType {}
 
@@ -42,7 +42,7 @@ function App() {
       <Routes>
         <Route path="/" element={<Home />}>
           <Route index element={<Welcome />} />
-          <Route path="create-patient" element={<HeroSection />} />
+          <Route path="create-patient" element={<CreatePatient />} />
           <Route path="search-patient" element={<SearchPatients />} />
           <Route
             path="search-patient/patient-dashboard/:id"
