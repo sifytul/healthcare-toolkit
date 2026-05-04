@@ -228,6 +228,8 @@ export const downloadReport = async (req, res) => {
       fileUrl = report.radiology.reportFileUrl;
     } else if (report.reportType === "lab_result" && report.labResult?.reportFileUrl) {
       fileUrl = report.labResult.reportFileUrl;
+    } else if (report.reportType === "antibiogram" && report.antibiogram?.reportFileUrl) {
+      fileUrl = report.antibiogram.reportFileUrl;
     }
 
     res.json({
@@ -243,5 +245,52 @@ export const downloadReport = async (req, res) => {
   } catch (error) {
     console.error("DownloadReport error:", error);
     res.status(500).json({ message: "Server error" });
+  }
+};
+
+// Upload report file
+export const uploadReportFile = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { reportType } = req.body;
+
+    if (!req.file) {
+      return res.status(400).json({ message: "No file uploaded" });
+    }
+
+    const report = await Report.findById(id);
+
+    if (!report) {
+      return res.status(404).json({ message: "Report not found" });
+    }
+
+    if (report.isDeleted) {
+      return res.status(404).json({ message: "Report not found" });
+    }
+
+    const fileUrl = `/uploads/${req.file.filename}`;
+
+    // Update the file URL based on report type
+    if (reportType === "radiology") {
+      report.radiology = report.radiology || {};
+      report.radiology.reportFileUrl = fileUrl;
+    } else if (reportType === "lab_result") {
+      report.labResult = report.labResult || {};
+      report.labResult.reportFileUrl = fileUrl;
+    } else if (reportType === "antibiogram") {
+      report.antibiogram = report.antibiogram || {};
+      report.antibiogram.reportFileUrl = fileUrl;
+    }
+
+    await report.save();
+
+    res.status(200).json({
+      success: true,
+      message: "File uploaded successfully",
+      data: { fileUrl },
+    });
+  } catch (error) {
+    console.error("UploadReportFile error:", error);
+    res.status(500).json({ message: error.message || "Server error" });
   }
 };

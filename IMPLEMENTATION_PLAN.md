@@ -101,9 +101,9 @@ A healthcare management tool to create a database of antibiograms for improving 
 
 ### Phase 4: Report Management (Priority: Medium)
 
-- [ ] 4.1 Create Report API routes with CRUD operations
-- [ ] 4.2 Implement PDF file upload (multer + storage/MinIO)
-- [ ] 4.3 Create report model with fields: id, patient_id, type (CBC/RBS/Antibiogram/Radiology), file_url, uploaded_by, diagnostic_center_id, extracted_data (JSON), status (uploaded/parsed/verified)
+- [x] 4.1 Create Report API routes with CRUD operations
+- [x] 4.2 Implement PDF file upload (multer + storage/MinIO)
+- [x] 4.3 Create report model with fields: id, patient_id, type (CBC/RBS/Antibiogram/Radiology), file_url, uploaded_by, diagnostic_center_id, extracted_data (JSON), status (uploaded/parsed/verified)
 - [ ] 4.4 Integrate object storage (MinIO/S3)
 - [ ] 4.5 Build radiology report viewing page
 - [ ] 4.6 Build lab results/form entry page
@@ -125,10 +125,10 @@ A healthcare management tool to create a database of antibiograms for improving 
 
 ### Phase 6: Antibiogram & Analytics (Priority: Medium)
 
-- [ ] 6.1 Create Antibiogram data model with microorganism, antibiotic, sensitivity (S/I/R), patient_id, location, timestamp
+- [x] 6.1 Create Antibiogram data model with microorganism, antibiotic, sensitivity (S/I/R), patient_id, location, timestamp
 - [ ] 6.2 Build antibiogram chart components
 - [ ] 6.3 Implement sensitivity overview dashboard
-- [ ] 6.4 Build aggregation queries for sensitivity analysis
+- [x] 6.4 Build aggregation queries for sensitivity analysis
 - [ ] 6.5 Create charts (frontend) for sensitivity vs antibiotic
 - [ ] 6.6 Implement resistance trends visualization
 - [ ] 6.7 Add region-based filtering
@@ -315,4 +315,5 @@ A healthcare management tool to create a database of antibiograms for improving 
 - Phase 1: Complete (auth & access control with permissions, audit logging, consent, sessions)
 - Phase 2: Complete (frontend auth integration)
 - Phase 3: Complete (patient management backend - models, diagnoses, prescriptions, timeline API)
-- Phase 4: In Progress (report management)
+- Phase 4: In Progress (report management - API routes, file upload done)
+- Phase 6: Partial (antibiogram backend model & analytics done, frontend charts pending)

@@ -7,8 +7,10 @@ import {
   updateReport,
   deleteReport,
   downloadReport,
+  uploadReportFile,
 } from "../controllers/reportController.js";
 import { verifyToken, authorize } from "../middleware/auth.js";
+import { upload } from "../middleware/upload.js";
 
 const router = Router();
 
@@ -17,6 +19,14 @@ router.use(verifyToken);
 
 // Create report - doctor, diagnostic_center
 router.post("/", authorize("doctor", "diagnostic_center"), createReport);
+
+// Upload report file - doctor, diagnostic_center
+router.post(
+  "/:id/upload",
+  authorize("doctor", "diagnostic_center"),
+  upload.single("file"),
+  uploadReportFile
+);
 
 // Get all reports - doctor, admin
 router.get("/", authorize("doctor", "admin"), getAllReports);
