@@ -5,6 +5,8 @@ import patientRouter from "./patientRoutes.js";
 import consentRouter from "./consentRoutes.js";
 import diagnosisRouter from "./diagnosisRoutes.js";
 import prescriptionRouter from "./prescriptionRoutes.js";
+import reportRouter from "./reportRoutes.js";
+import antibiogramRouter from "./antibiogramRoutes.js";
 
 const router = Router()
 router.use("/user", userRouter)
@@ -13,5 +15,7 @@ router.use("/patients", patientRouter)
 router.use("/consents", consentRouter)
 router.use("/diagnoses", diagnosisRouter)
 router.use("/prescriptions", prescriptionRouter)
+router.use("/reports", reportRouter)
+router.use("/antibiograms", antibiogramRouter)
 
 export default router
