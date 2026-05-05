@@ -1,32 +1,50 @@
-import {useState} from 'react'
-import {Outlet} from 'react-router-dom'
-import HeroSection from '../components/HeroSection'
-import Navbar from '../components/Navbar'
-import Sidebar from '../components/Sidebar'
+import { useState } from "react";
+import { Outlet } from "react-router-dom";
+import Sidebar from "../components/Sidebar";
+import Navbar from "../components/Navbar";
 
 const Home = () => {
-    const [sideBar, setSideBar] = useState(false);
-    const toggleHandler = () => {
-      setSideBar(!sideBar);
-    };
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+
+  const toggleSidebar = () => {
+    setIsSidebarOpen(!isSidebarOpen);
+  };
+
+  const closeSidebar = () => {
+    setIsSidebarOpen(false);
+  };
+
   return (
-    <div className="max-w-screen-2xl xl:grid xl:grid-cols-12">
-      <div
-        className={`col-span-2 m-2 bg-[var(--clr-secondary)] rounded-sm ${
-          !sideBar ? "hidden" : "inline-block"
-        } xl:inline-block h-[calc(100vh-2*0.5rem)] fixed z-10`}
-        onClick={toggleHandler}
-      >
-        <Sidebar sideBar={sideBar} sideBarHandler={toggleHandler} />
-      </div>
-      <div className="col-start-3 col-span-10">
-        <div className='sticky top-0 bg-white z-5'>
-          <Navbar sideBar={sideBar} sideBarHandler={toggleHandler} />
-        </div>
-        <Outlet />
+    <div className="flex h-screen bg-gray-50">
+      {/* Sidebar - fixed on desktop, overlay on mobile */}
+      <Sidebar 
+        sideBar={isSidebarOpen} 
+        sideBarHandler={closeSidebar}
+      />
+
+      {/* Overlay for mobile when sidebar is open */}
+      {isSidebarOpen && (
+        <div 
+          className="fixed inset-0 bg-black/50 z-30 lg:hidden"
+          onClick={closeSidebar}
+        />
+      )}
+
+      {/* Main content area */}
+      <div className="flex flex-col flex-1 min-w-0">
+        {/* Navbar */}
+        <Navbar 
+          sideBar={isSidebarOpen} 
+          sideBarHandler={toggleSidebar} 
+        />
+
+        {/* Page content */}
+        <main className="flex-1 overflow-auto p-6">
+          <Outlet />
+        </main>
       </div>
     </div>
   );
-}
+};
 
-export default Home
+export default Home;
