@@ -1,12 +1,16 @@
 import { useEffect, useState } from "react";
-import { Link, useParams } from "react-router-dom";
-import { FiEdit } from "../../assets/icons/react-icons";
-import Button from "../../components/shared/Button";
-import TableField from "../../components/shared/TableField";
+import { useParams } from "react-router-dom";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Separator } from "@/components/ui/separator";
+import { Loader2, AlertCircle, Edit, Save } from "lucide-react";
 
 const API_URL = "http://localhost:7000/api/v1/patients";
 
 interface Patient {
+  patientId: string;
   firstName: string;
   lastName: string;
   dateOfBirth: string;
@@ -17,32 +21,12 @@ interface Patient {
   height?: number;
   weight?: number;
   bmi?: number;
+  bloodType?: string;
   emergencyContact?: {
     name: string;
-    relationship: string;
-    phone: string;
-  };
-  relationships: Array<{
-    _id: string;
-    relativeName: string;
-    relationship: string;
+    relationship?: string;
     phone?: string;
-  }>;
-  previousConditions: Array<{
-    conditionName: string;
-    diagnosedDate: string;
-    notes?: string;
-  }>;
-  currentConditions: Array<{
-    conditionName: string;
-    diagnosedDate: string;
-    notes?: string;
-  }>;
-  allergies: Array<{
-    allergen: string;
-    reaction?: string;
-    severity?: string;
-  }>;
+  };
 }
 
 const Demographics = () => {
@@ -50,6 +34,8 @@ const Demographics = () => {
   const [patient, setPatient] = useState<Patient | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [isEditing, setIsEditing] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
 
   const getAuthHeaders = () => {
     const token = localStorage.getItem("token");
@@ -97,177 +83,183 @@ const Demographics = () => {
     });
   };
 
-  // Prepare addresses data for table
-  const addresses = patient?.address
-    ? [
-        {
-          type: "Present",
-          address: patient.address,
-          city: "N/A",
-          state: "N/A",
-          country: "N/A",
-          "postal code": "N/A",
-        },
-      ]
-    : [];
-
-  // Prepare relationships data for table
-  const relationshipsData = patient?.relationships?.map((rel) => ({
-    name: rel.relativeName,
-    relationship: rel.relationship,
-    phone: rel.phone || "N/A",
-  })) || [];
-
-  // Prepare conditions data
-  const conditionsData = [
-    ...(patient?.previousConditions?.map((c) => ({
-      type: "Previous",
-      condition: c.conditionName,
-      date: formatDate(c.diagnosedDate),
-      notes: c.notes || "N/A",
-    })) || []),
-    ...(patient?.currentConditions?.map((c) => ({
-      type: "Current",
-      condition: c.conditionName,
-      date: formatDate(c.diagnosedDate),
-      notes: c.notes || "N/A",
-    })) || []),
-  ];
-
-  // Prepare allergies data
-  const allergiesData = patient?.allergies?.map((a) => ({
-    allergen: a.reaction,
-    severity: a.severity || "N/A",
-    notes: a.reaction || "N/A",
-  })) || [];
+  const calculateAge = (dateOfBirth: string) => {
+    if (!dateOfBirth) return "N/A";
+    const today = new Date();
+    const birthDate = new Date(dateOfBirth);
+    let age = today.getFullYear() - birthDate.getFullYear();
+    const monthDiff = today.getMonth() - birthDate.getMonth();
+    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+      age--;
+    }
+    return age;
+  };
 
   if (loading) {
     return (
-      <div className="space-y-6 m-10">
-        <p className="text-gray-500">Loading demographics...</p>
+      <div className="flex items-center justify-center h-64">
+        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="space-y-6 m-10">
-        <div className="p-3 bg-red-100 border border-red-400 text-red-700 rounded">
-          {error}
+      <Card className="m-4 p-4 border-destructive/50 bg-destructive/10">
+        <div className="flex items-center gap-2">
+          <AlertCircle className="h-4 w-4 text-destructive" />
+          <p className="text-destructive">{error}</p>
         </div>
-      </div>
+      </Card>
     );
   }
 
+  if (!patient) {
+    return null;
+  }
+
   return (
-    <div className="space-y-6 m-10">
-      {patient && (
-        <>
-          {/* Basic Information */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="border p-4 rounded-lg">
-              <h3 className="text-lg font-semibold mb-3">Basic Information</h3>
-              <div className="space-y-2 text-sm">
-                <p>
-                  <strong>Name:</strong> {patient.firstName} {patient.lastName}
-                </p>
-                <p>
-                  <strong>Date of Birth:</strong> {formatDate(patient.dateOfBirth)}
-                </p>
-                <p>
-                  <strong>Gender:</strong> {patient.gender}
-                </p>
-                <p>
-                  <strong>Phone:</strong> {patient.phone || "N/A"}
-                </p>
-                <p>
-                  <strong>Email:</strong> {patient.email || "N/A"}
-                </p>
-                <p>
-                  <strong>Height:</strong> {patient.height ? `${patient.height} cm` : "N/A"}
-                </p>
-                <p>
-                  <strong>Weight:</strong> {patient.weight ? `${patient.weight} kg` : "N/A"}
-                </p>
-                <p>
-                  <strong>BMI:</strong> {patient.bmi || "N/A"}
-                </p>
-              </div>
-            </div>
+    <div className="container mx-auto py-6 px-4 space-y-6">
+      <div className="flex items-center justify-between">
+        <h2 className="text-lg font-semibold">Demographics</h2>
+        <Button variant="outline" size="sm" onClick={() => setIsEditing(!isEditing)}>
+          {isEditing ? (
+            <>
+              <Save className="h-4 w-4 mr-2" />
+              Save Changes
+            </>
+          ) : (
+            <>
+              <Edit className="h-4 w-4 mr-2" />
+              Edit
+            </>
+          )}
+        </Button>
+      </div>
 
-            <div className="border p-4 rounded-lg">
-              <h3 className="text-lg font-semibold mb-3">Emergency Contact</h3>
-              <div className="space-y-2 text-sm">
-                <p>
-                  <strong>Name:</strong> {patient.emergencyContact?.name || "N/A"}
-                </p>
-                <p>
-                  <strong>Relationship:</strong> {patient.emergencyContact?.relationship || "N/A"}
-                </p>
-                <p>
-                  <strong>Phone:</strong> {patient.emergencyContact?.phone || "N/A"}
-                </p>
-              </div>
+      <Separator />
+
+      {/* Basic Information */}
+      <Card>
+        <CardContent className="pt-6 space-y-4">
+          <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wide">
+            Basic Information
+          </h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-1">
+              <Label className="text-xs text-muted-foreground">Full Name</Label>
+              <Input value={`${patient.firstName} ${patient.lastName}`} readOnly={!isEditing} />
+            </div>
+            <div className="space-y-1">
+              <Label className="text-xs text-muted-foreground">Patient ID</Label>
+              <Input value={patient.patientId} readOnly />
+            </div>
+            <div className="space-y-1">
+              <Label className="text-xs text-muted-foreground">Date of Birth</Label>
+              <Input value={formatDate(patient.dateOfBirth)} readOnly />
+            </div>
+            <div className="space-y-1">
+              <Label className="text-xs text-muted-foreground">Age</Label>
+              <Input value={`${calculateAge(patient.dateOfBirth)} years`} readOnly />
+            </div>
+            <div className="space-y-1">
+              <Label className="text-xs text-muted-foreground">Gender</Label>
+              <Input 
+                value={patient.gender ? patient.gender.charAt(0).toUpperCase() + patient.gender.slice(1) : "N/A"} 
+                readOnly 
+              />
+            </div>
+            <div className="space-y-1">
+              <Label className="text-xs text-muted-foreground">Blood Type</Label>
+              <Input value={patient.bloodType || "Not specified"} readOnly />
             </div>
           </div>
+        </CardContent>
+      </Card>
 
-          {/* Address */}
-          {addresses.length > 0 && (
-            <>
-              <p className="textSize-550 text-gray-primary font-semibold">Address</p>
-              <TableField tableData={addresses} />
-            </>
-          )}
-
-          {/* Relationships */}
-          {relationshipsData.length > 0 && (
-            <>
-              <p className="textSize-550 text-gray-primary font-semibold">Relationships</p>
-              <TableField
-                tableData={relationshipsData.map((r) => ({
-                  name: r.name,
-                  relationship: r.relationship,
-                  phone: r.phone,
-                }))}
-              />
-            </>
-          )}
-
-          {/* Medical Conditions */}
-          {conditionsData.length > 0 && (
-            <>
-              <p className="textSize-550 text-gray-primary font-semibold">Medical Conditions</p>
-              <TableField tableData={conditionsData} />
-            </>
-          )}
-
-          {/* Allergies */}
-          {allergiesData.length > 0 && (
-            <>
-              <p className="textSize-550 text-gray-primary font-semibold">Allergies</p>
-              <TableField tableData={allergiesData} />
-            </>
-          )}
-
-          <hr />
-          <div className="flex gap-4">
-            <Link to={`/search-patient/patient-dashboard/${id}/overview`}>
-              <Button
-                text="Edit this patient"
-                varientColor="primary"
-                size="sm"
-                Icon={FiEdit}
-              />
-            </Link>
-            <Button
-              text="Edit this patient (short form)"
-              varientColor="primary"
-              size="sm"
-              Icon={FiEdit}
-            />
+      {/* Contact Information */}
+      <Card>
+        <CardContent className="pt-6 space-y-4">
+          <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wide">
+            Contact Information
+          </h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-1">
+              <Label className="text-xs text-muted-foreground">Phone</Label>
+              <Input value={patient.phone || "N/A"} readOnly={!isEditing} />
+            </div>
+            <div className="space-y-1">
+              <Label className="text-xs text-muted-foreground">Email</Label>
+              <Input value={patient.email || "N/A"} readOnly={!isEditing} />
+            </div>
+            <div className="space-y-1 md:col-span-2">
+              <Label className="text-xs text-muted-foreground">Address</Label>
+              <Input value={patient.address || "N/A"} readOnly={!isEditing} />
+            </div>
           </div>
-        </>
-      )}
+        </CardContent>
+      </Card>
+
+      {/* Physical Measurements */}
+      <Card>
+        <CardContent className="pt-6 space-y-4">
+          <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wide">
+            Physical Measurements
+          </h3>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="space-y-1">
+              <Label className="text-xs text-muted-foreground">Height</Label>
+              <Input 
+                value={patient.height ? `${patient.height} cm` : "N/A"} 
+                readOnly={!isEditing} 
+              />
+            </div>
+            <div className="space-y-1">
+              <Label className="text-xs text-muted-foreground">Weight</Label>
+              <Input 
+                value={patient.weight ? `${patient.weight} kg` : "N/A"} 
+                readOnly={!isEditing} 
+              />
+            </div>
+            <div className="space-y-1">
+              <Label className="text-xs text-muted-foreground">BMI</Label>
+              <Input value={patient.bmi ? patient.bmi.toFixed(1) : "N/A"} readOnly />
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Emergency Contact */}
+      <Card>
+        <CardContent className="pt-6 space-y-4">
+          <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wide">
+            Emergency Contact
+          </h3>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="space-y-1">
+              <Label className="text-xs text-muted-foreground">Name</Label>
+              <Input 
+                value={patient.emergencyContact?.name || "Not specified"} 
+                readOnly={!isEditing} 
+              />
+            </div>
+            <div className="space-y-1">
+              <Label className="text-xs text-muted-foreground">Relationship</Label>
+              <Input 
+                value={patient.emergencyContact?.relationship || "Not specified"} 
+                readOnly={!isEditing} 
+              />
+            </div>
+            <div className="space-y-1">
+              <Label className="text-xs text-muted-foreground">Phone</Label>
+              <Input 
+                value={patient.emergencyContact?.phone || "Not specified"} 
+                readOnly={!isEditing} 
+              />
+            </div>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 };

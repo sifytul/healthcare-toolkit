@@ -1,7 +1,18 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import Button from "../../components/shared/Button";
-import TableField from "../../components/shared/TableField";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Card, CardContent } from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { Loader2, AlertCircle, Plus } from "lucide-react";
 
 const API_URL = "http://localhost:7000/api/v1/patients";
 
@@ -86,116 +97,188 @@ const Overview = () => {
     });
   };
 
-  // Prepare relationships data for table
-  const relationships = patient?.relationships?.map((rel) => ({
-    Relative: rel.relativeName,
-    Relationship: rel.relationship,
-    "Start Date": formatDate(rel.startDate),
-    "End Date": formatDate(rel.endDate || ""),
-  })) || [];
+  const getStatusBadgeVariant = (status: string) => {
+    switch (status) {
+      case "active":
+        return "default";
+      case "completed":
+        return "secondary";
+      case "cancelled":
+        return "destructive";
+      default:
+        return "outline";
+    }
+  };
 
-  // Prepare medications data for table
-  const medications = patient?.medications?.map((med) => ({
-    "Medication Name": med.medicationName,
-    Dosage: med.dosage || "N/A",
-    Frequency: med.frequency || "N/A",
-    "Start Date": formatDate(med.startDate),
-    Status: med.status,
-  })) || [];
+  // Recent visits (last 5)
+  const recentVisits = patient?.visits?.slice(-5).reverse() || [];
 
-  // Prepare recent visits data
-  const recentVisits = patient?.visits?.slice(-5).map((v) => ({
-    ID: v._id,
-    Department: v.department,
-    "Start Date": formatDate(v.startDate),
-    "End Date": formatDate(v.endDate || ""),
-    Status: v.status,
-  })) || [];
+  // Medications
+  const medications = patient?.medications || [];
 
   if (loading) {
     return (
-      <div className="m-4 p-4 space-y-6">
-        <p className="text-gray-500">Loading overview...</p>
+      <div className="flex items-center justify-center h-64">
+        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="m-4 p-4 space-y-6">
-        <div className="p-3 bg-red-100 border border-red-400 text-red-700 rounded">
-          {error}
+      <Card className="m-4 p-4 border-destructive/50 bg-destructive/10">
+        <div className="flex items-center gap-2">
+          <AlertCircle className="h-4 w-4 text-destructive" />
+          <p className="text-destructive">{error}</p>
         </div>
-      </div>
+      </Card>
     );
   }
 
-  // Sample programs data (placeholder for now)
-  const programs = [
-    {
-      ID: "N/A",
-      Name: "No programs enrolled",
-      Description: "N/A",
-      "Concept Name": "N/A",
-      Workflows: "N/A",
-      "Possible Outcomes Defined by": "N/A",
-    },
-  ];
-
   return (
-    <>
-      <div className="m-4 p-4 space-y-6">
-        <div className="min-h-[100px]">
-          <p className="textSize-550 font-semibold text-gray-primary">
-            Patient Actions
-          </p>
-          {patient?.visits?.some((v) => v.status === "active") ? (
-            <p className="text-green-600 text-sm">
-              Active visit in progress
-            </p>
-          ) : (
-            <p className="text-gray-500 text-sm">No active visit</p>
-          )}
-        </div>
-        <hr />
-        <div className="space-y-6">
-          <p className="textSize-550 text-gray-primary font-semibold">
-            Recent Visits
-          </p>
-          {recentVisits.length > 0 ? (
-            <TableField tableData={recentVisits} actionsButton={true} />
-          ) : (
-            <p className="text-gray-500 text-sm">No visits found</p>
-          )}
-        </div>
-        <div className="space-y-6">
-          <p className="textSize-550 text-gray-primary font-semibold">
-            Programs
-          </p>
-          <TableField tableData={programs} actionsButton={true} />
-          <Button text="+ Add Program" varientColor="primary" size="sm" />
-        </div>
-        <div className="space-y-6">
-          <p className="textSize-550 font-semibold text-gray-primary">
-            Relationships
-          </p>
-          {relationships.length > 0 ? (
-            <TableField tableData={relationships} actionsButton={true} />
-          ) : (
-            <p className="text-gray-500 text-sm">No relationships found</p>
-          )}
-          <Button text="+ Add Relationship" varientColor="primary" size="sm" />
-        </div>
-        {medications.length > 0 && (
-          <div className="space-y-6">
-            <p className="textSize-550 text-gray-primary font-semibold">
-              Current Medications
-            </p>
-            <TableField tableData={medications} actionsButton={true} />
+    <div className="container mx-auto py-6 px-4 space-y-6">
+      {/* Patient Actions */}
+      <Card>
+        <CardContent className="pt-6">
+          <div className="space-y-2">
+            <h3 className="text-lg font-semibold">Patient Actions</h3>
+            {patient?.visits?.some((v) => v.status === "active") ? (
+              <Badge variant="default" className="bg-green-600">Active visit in progress</Badge>
+            ) : (
+              <p className="text-sm text-muted-foreground">No active visit</p>
+            )}
           </div>
+        </CardContent>
+      </Card>
+
+      <Separator />
+
+      {/* Recent Visits */}
+      <div className="space-y-4">
+        <h3 className="text-lg font-semibold">Recent Visits</h3>
+        {recentVisits.length > 0 ? (
+          <div className="border rounded-lg overflow-hidden">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Department</TableHead>
+                  <TableHead>Start Date</TableHead>
+                  <TableHead>End Date</TableHead>
+                  <TableHead>Status</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {recentVisits.map((v) => (
+                  <TableRow key={v._id}>
+                    <TableCell>{v.department}</TableCell>
+                    <TableCell>{formatDate(v.startDate)}</TableCell>
+                    <TableCell>{formatDate(v.endDate || "")}</TableCell>
+                    <TableCell>
+                      <Badge variant={getStatusBadgeVariant(v.status)}>
+                        {v.status}
+                      </Badge>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
+        ) : (
+          <p className="text-sm text-muted-foreground">No visits found</p>
         )}
       </div>
-    </>
+
+      <Separator />
+
+      {/* Programs */}
+      <div className="space-y-4">
+        <div className="flex items-center justify-between">
+          <h3 className="text-lg font-semibold">Programs</h3>
+          <Button size="sm">
+            <Plus className="h-4 w-4 mr-2" />
+            Add Program
+          </Button>
+        </div>
+        <p className="text-sm text-muted-foreground">No programs enrolled</p>
+      </div>
+
+      <Separator />
+
+      {/* Relationships */}
+      <div className="space-y-4">
+        <div className="flex items-center justify-between">
+          <h3 className="text-lg font-semibold">Relationships</h3>
+          <Button size="sm">
+            <Plus className="h-4 w-4 mr-2" />
+            Add Relationship
+          </Button>
+        </div>
+        {patient?.relationships && patient.relationships.length > 0 ? (
+          <div className="border rounded-lg overflow-hidden">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Relative</TableHead>
+                  <TableHead>Relationship</TableHead>
+                  <TableHead>Start Date</TableHead>
+                  <TableHead>End Date</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {patient.relationships.map((rel) => (
+                  <TableRow key={rel._id}>
+                    <TableCell>{rel.relativeName}</TableCell>
+                    <TableCell>{rel.relationship}</TableCell>
+                    <TableCell>{formatDate(rel.startDate)}</TableCell>
+                    <TableCell>{formatDate(rel.endDate || "")}</TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
+        ) : (
+          <p className="text-sm text-muted-foreground">No relationships found</p>
+        )}
+      </div>
+
+      {/* Medications */}
+      {medications.length > 0 && (
+        <>
+          <Separator />
+          <div className="space-y-4">
+            <h3 className="text-lg font-semibold">Current Medications</h3>
+            <div className="border rounded-lg overflow-hidden">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Medication</TableHead>
+                    <TableHead>Dosage</TableHead>
+                    <TableHead>Frequency</TableHead>
+                    <TableHead>Start Date</TableHead>
+                    <TableHead>Status</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {medications.map((med) => (
+                    <TableRow key={med._id}>
+                      <TableCell className="font-medium">{med.medicationName}</TableCell>
+                      <TableCell>{med.dosage || "N/A"}</TableCell>
+                      <TableCell>{med.frequency || "N/A"}</TableCell>
+                      <TableCell>{formatDate(med.startDate)}</TableCell>
+                      <TableCell>
+                        <Badge variant={getStatusBadgeVariant(med.status)}>
+                          {med.status}
+                        </Badge>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+          </div>
+        </>
+      )}
+    </div>
   );
 };
 
