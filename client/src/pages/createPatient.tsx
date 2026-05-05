@@ -1,26 +1,38 @@
 import { ChangeEvent, FormEvent, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { BsPersonFill, BsFillEnvelopeFill, BsPhoneFill } from "../assets/icons/react-icons";
-import Button from "../components/shared/Button";
+import Button from "@/components/shared/Button";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Separator } from "@/components/ui/separator";
+import { Textarea } from "@/components/ui/textarea";
+
 
 const API_URL = "http://localhost:7000/api/v1/patients";
 
-interface FormData {
-  firstName: string;
-  lastName: string;
-  dateOfBirth: string;
-  gender: string;
-  phone: string;
-  email: string;
-  address: string;
-  height: string;
-  weight: string;
-  emergencyContactName: string;
-  emergencyContactRelationship: string;
-  emergencyContactPhone: string;
-}
+const patientSchema = z.object({
+  firstName: z.string().min(1, "First name is required"),
+  lastName: z.string().min(1, "Last name is required"),
+  dateOfBirth: z.string().min(1, "Date of birth is required"),
+  gender: z.string().min(1, "Gender is required"),
+  phone: z.string().optional(),
+  email: z.string().email("Invalid email address").optional().or(z.literal("")),
+  address: z.string().optional(),
+  height: z.string().optional(),
+  weight: z.string().optional(),
+  emergencyContactName: z.string().optional(),
+  emergencyContactRelationship: z.string().optional(),
+  emergencyContactPhone: z.string().optional(),
+});
 
-const initialFormData: FormData = {
+type PatientFormData = z.infer<typeof patientSchema>;
+
+
+const initialFormData = {
   firstName: "",
   lastName: "",
   dateOfBirth: "",
@@ -36,16 +48,23 @@ const initialFormData: FormData = {
 };
 
 const CreatePatient = () => {
-  const [formData, setFormData] = useState<FormData>(initialFormData);
-  const [error, setError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [success, setSuccess] = useState(false);
-
   const navigate = useNavigate();
+  const [serverError, setServerError] = useState("")
 
-  const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-  };
+
+  const {
+    register,
+    handleSubmit,
+    setValue,
+    watch,
+    formState: { errors },
+  } = useForm<PatientFormData>({
+    resolver: zodResolver(patientSchema),
+    defaultValues: initialFormData,
+  });
+
 
   const getAuthHeaders = () => {
     const token = localStorage.getItem("token");
@@ -55,10 +74,9 @@ const CreatePatient = () => {
     };
   };
 
-  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    setError("");
+  const onSubmit = async (formData: PatientFormData) => {
     setIsSubmitting(true);
+    setServerError("")
 
     try {
       const payload = {
@@ -97,7 +115,7 @@ const CreatePatient = () => {
         navigate(`/search-patient/patient-dashboard/${data.data.patient.patientId}`);
       }, 1500);
     } catch (err: any) {
-      setError(err.message);
+      setServerError(err.message);
     } finally {
       setIsSubmitting(false);
     }
@@ -111,9 +129,9 @@ const CreatePatient = () => {
     <div className="max-w-3xl mx-auto p-6">
       <h2 className="text-2xl font-bold mb-6">Create New Patient</h2>
 
-      {error && (
+      {serverError && (
         <div className="mb-4 w-full bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
-          {error}
+          {serverError}
         </div>
       )}
 
@@ -123,7 +141,7 @@ const CreatePatient = () => {
         </div>
       )}
 
-      <form onSubmit={handleSubmit} className="space-y-6">
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
         {/* Personal Information */}
         <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
           <h3 className="text-lg font-semibold mb-4">Personal Information</h3>
@@ -135,10 +153,7 @@ const CreatePatient = () => {
               <input
                 type="text"
                 id="firstName"
-                name="firstName"
-                value={formData.firstName}
-                onChange={handleChange}
-                required
+                {...register("firstName")}
                 className={inputClassName}
                 placeholder="Enter first name"
               />
@@ -150,10 +165,7 @@ const CreatePatient = () => {
               <input
                 type="text"
                 id="lastName"
-                name="lastName"
-                value={formData.lastName}
-                onChange={handleChange}
-                required
+                {...register("lastName")}
                 className={inputClassName}
                 placeholder="Enter last name"
               />
@@ -168,10 +180,7 @@ const CreatePatient = () => {
               <input
                 type="date"
                 id="dateOfBirth"
-                name="dateOfBirth"
-                value={formData.dateOfBirth}
-                onChange={handleChange}
-                required
+                {...register("dateOfBirth")}
                 className={inputClassName}
               />
             </div>
@@ -181,10 +190,7 @@ const CreatePatient = () => {
               </label>
               <select
                 id="gender"
-                name="gender"
-                value={formData.gender}
-                onChange={handleChange}
-                required
+                {...register("gender")}
                 className={inputClassName}
               >
                 <option value="">Select Gender</option>
@@ -207,9 +213,7 @@ const CreatePatient = () => {
               <input
                 type="tel"
                 id="phone"
-                name="phone"
-                value={formData.phone}
-                onChange={handleChange}
+                {...register("phone")}
                 className={inputClassName}
                 placeholder="Enter phone number"
               />
@@ -221,9 +225,7 @@ const CreatePatient = () => {
               <input
                 type="email"
                 id="email"
-                name="email"
-                value={formData.email}
-                onChange={handleChange}
+                {...register("email")}
                 className={inputClassName}
                 placeholder="Enter email address"
               />
@@ -236,9 +238,7 @@ const CreatePatient = () => {
             </label>
             <textarea
               id="address"
-              name="address"
-              value={formData.address}
-              onChange={handleChange}
+              {...register("address")}
               rows={2}
               className={inputClassName}
               placeholder="Enter address"
@@ -257,9 +257,7 @@ const CreatePatient = () => {
               <input
                 type="number"
                 id="height"
-                name="height"
-                value={formData.height}
-                onChange={handleChange}
+                {...register("height")}
                 className={inputClassName}
                 placeholder="Enter height in cm"
                 min="0"
@@ -272,9 +270,7 @@ const CreatePatient = () => {
               <input
                 type="number"
                 id="weight"
-                name="weight"
-                value={formData.weight}
-                onChange={handleChange}
+                {...register("weight")}
                 className={inputClassName}
                 placeholder="Enter weight in kg"
                 min="0"
@@ -294,9 +290,7 @@ const CreatePatient = () => {
               <input
                 type="text"
                 id="emergencyContactName"
-                name="emergencyContactName"
-                value={formData.emergencyContactName}
-                onChange={handleChange}
+                {...register("emergencyContactName")}
                 className={inputClassName}
                 placeholder="Enter name"
               />
@@ -308,9 +302,7 @@ const CreatePatient = () => {
               <input
                 type="text"
                 id="emergencyContactRelationship"
-                name="emergencyContactRelationship"
-                value={formData.emergencyContactRelationship}
-                onChange={handleChange}
+                {...register("emergencyContactRelationship")}
                 className={inputClassName}
                 placeholder="e.g., Spouse, Parent"
               />
@@ -322,9 +314,7 @@ const CreatePatient = () => {
               <input
                 type="tel"
                 id="emergencyContactPhone"
-                name="emergencyContactPhone"
-                value={formData.emergencyContactPhone}
-                onChange={handleChange}
+                {...register("emergencyContactPhone")}
                 className={inputClassName}
                 placeholder="Enter phone"
               />
@@ -337,13 +327,11 @@ const CreatePatient = () => {
             type="button"
             text="Cancel"
             varientColor="secondary"
-            onClick={() => navigate("/")}
           />
           <Button
             type="submit"
             text={isSubmitting ? "Creating..." : "Create Patient"}
             varientColor="primary"
-            disabled={isSubmitting}
           />
         </div>
       </form>
