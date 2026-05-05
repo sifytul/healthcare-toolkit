@@ -1,6 +1,5 @@
-import { ChangeEvent, FormEvent, useState } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import Button from "@/components/shared/Button";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -8,8 +7,8 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Separator } from "@/components/ui/separator";
 import { Textarea } from "@/components/ui/textarea";
+import { Button } from "@/components/ui/button";
 
 
 const API_URL = "http://localhost:7000/api/v1/patients";
@@ -58,7 +57,6 @@ const CreatePatient = () => {
     register,
     handleSubmit,
     setValue,
-    watch,
     formState: { errors },
   } = useForm<PatientFormData>({
     resolver: zodResolver(patientSchema),
@@ -121,218 +119,200 @@ const CreatePatient = () => {
     }
   };
 
-  const inputClassName =
-    "w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary";
-  const labelClassName = "block text-sm font-medium text-gray-700 mb-1";
-
   return (
-    <div className="max-w-3xl mx-auto p-6">
-      <h2 className="text-2xl font-bold mb-6">Create New Patient</h2>
+    <div className="max-w-3xl mx-auto p-6 space-y-6">
+      <h2 className="text-2xl font-bold">Create New Patient</h2>
 
       {serverError && (
-        <div className="mb-4 w-full bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
+        <div className="bg-destructive/10 border-destructive/20 text-destructive px-4 py-3 rounded-lg text-sm">
           {serverError}
         </div>
       )}
 
       {success && (
-        <div className="mb-4 w-full bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded">
+        <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded">
           Patient created successfully! Redirecting to patient dashboard...
         </div>
       )}
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
         {/* Personal Information */}
-        <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
-          <h3 className="text-lg font-semibold mb-4">Personal Information</h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label htmlFor="firstName" className={labelClassName}>
-                First Name *
-              </label>
-              <input
-                type="text"
+        <Card>
+          <CardHeader>
+            <CardTitle>Personal Information</CardTitle>
+          </CardHeader>
+          <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="firstName">First Name *</Label>
+              <Input
                 id="firstName"
                 {...register("firstName")}
-                className={inputClassName}
                 placeholder="Enter first name"
               />
+              {errors.firstName && (
+                <p className="text-sm text-destructive">{errors.firstName.message}</p>
+              )}
             </div>
-            <div>
-              <label htmlFor="lastName" className={labelClassName}>
-                Last Name *
-              </label>
-              <input
-                type="text"
+            <div className="space-y-2">
+              <Label htmlFor="lastName">Last Name *</Label>
+              <Input
                 id="lastName"
                 {...register("lastName")}
-                className={inputClassName}
                 placeholder="Enter last name"
               />
+              {errors.lastName && (
+                <p className="text-sm text-destructive">{errors.lastName.message}</p>
+              )}
             </div>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-            <div>
-              <label htmlFor="dateOfBirth" className={labelClassName}>
-                Date of Birth *
-              </label>
-              <input
+            <div className="space-y-2">
+              <Label htmlFor="dateOfBirth">Date of Birth *</Label>
+              <Input
                 type="date"
                 id="dateOfBirth"
                 {...register("dateOfBirth")}
-                className={inputClassName}
               />
+              {errors.dateOfBirth && (
+                <p className="text-sm text-destructive">{errors.dateOfBirth.message}</p>
+              )}
             </div>
-            <div>
-              <label htmlFor="gender" className={labelClassName}>
-                Gender *
-              </label>
-              <select
-                id="gender"
-                {...register("gender")}
-                className={inputClassName}
-              >
-                <option value="">Select Gender</option>
-                <option value="male">Male</option>
-                <option value="female">Female</option>
-                <option value="other">Other</option>
-              </select>
+            <div className="space-y-2">
+              <Label htmlFor="gender">Gender *</Label>
+              <Select onValueChange={(value) => setValue("gender", value)}>
+                <SelectTrigger id="gender">
+                  <SelectValue placeholder="Select Gender" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="male">Male</SelectItem>
+                  <SelectItem value="female">Female</SelectItem>
+                  <SelectItem value="other">Other</SelectItem>
+                </SelectContent>
+              </Select>
+              {errors.gender && (
+                <p className="text-sm text-destructive">{errors.gender.message}</p>
+              )}
             </div>
-          </div>
-        </div>
+          </CardContent>
+        </Card>
 
         {/* Contact Information */}
-        <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
-          <h3 className="text-lg font-semibold mb-4">Contact Information</h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label htmlFor="phone" className={labelClassName}>
-                Phone Number
-              </label>
-              <input
+        <Card>
+          <CardHeader>
+            <CardTitle>Contact Information</CardTitle>
+          </CardHeader>
+          <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="phone">Phone Number</Label>
+              <Input
                 type="tel"
                 id="phone"
                 {...register("phone")}
-                className={inputClassName}
                 placeholder="Enter phone number"
               />
             </div>
-            <div>
-              <label htmlFor="email" className={labelClassName}>
-                Email
-              </label>
-              <input
+            <div className="space-y-2">
+              <Label htmlFor="email">Email</Label>
+              <Input
                 type="email"
                 id="email"
                 {...register("email")}
-                className={inputClassName}
                 placeholder="Enter email address"
               />
+              {errors.email && (
+                <p className="text-sm text-destructive">{errors.email.message}</p>
+              )}
             </div>
-          </div>
-
-          <div className="mt-4">
-            <label htmlFor="address" className={labelClassName}>
-              Address
-            </label>
-            <textarea
-              id="address"
-              {...register("address")}
-              rows={2}
-              className={inputClassName}
-              placeholder="Enter address"
-            />
-          </div>
-        </div>
+            <div className="space-y-2 md:col-span-2">
+              <Label htmlFor="address">Address</Label>
+              <Textarea
+                id="address"
+                {...register("address")}
+                rows={2}
+                placeholder="Enter address"
+              />
+            </div>
+          </CardContent>
+        </Card>
 
         {/* Physical Measurements */}
-        <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
-          <h3 className="text-lg font-semibold mb-4">Physical Measurements</h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label htmlFor="height" className={labelClassName}>
-                Height (cm)
-              </label>
-              <input
+        <Card>
+          <CardHeader>
+            <CardTitle>Physical Measurements</CardTitle>
+          </CardHeader>
+          <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="height">Height (cm)</Label>
+              <Input
                 type="number"
                 id="height"
                 {...register("height")}
-                className={inputClassName}
                 placeholder="Enter height in cm"
                 min="0"
               />
             </div>
-            <div>
-              <label htmlFor="weight" className={labelClassName}>
-                Weight (kg)
-              </label>
-              <input
+            <div className="space-y-2">
+              <Label htmlFor="weight">Weight (kg)</Label>
+              <Input
                 type="number"
                 id="weight"
                 {...register("weight")}
-                className={inputClassName}
                 placeholder="Enter weight in kg"
                 min="0"
               />
             </div>
-          </div>
-        </div>
+          </CardContent>
+        </Card>
 
         {/* Emergency Contact */}
-        <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
-          <h3 className="text-lg font-semibold mb-4">Emergency Contact</h3>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div>
-              <label htmlFor="emergencyContactName" className={labelClassName}>
-                Contact Name
-              </label>
-              <input
+        <Card>
+          <CardHeader>
+            <CardTitle>Emergency Contact</CardTitle>
+          </CardHeader>
+          <CardContent className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="emergencyContactName">Contact Name</Label>
+              <Input
                 type="text"
                 id="emergencyContactName"
                 {...register("emergencyContactName")}
-                className={inputClassName}
                 placeholder="Enter name"
               />
             </div>
-            <div>
-              <label htmlFor="emergencyContactRelationship" className={labelClassName}>
-                Relationship
-              </label>
-              <input
+            <div className="space-y-2">
+              <Label htmlFor="emergencyContactRelationship">Relationship</Label>
+              <Input
                 type="text"
                 id="emergencyContactRelationship"
                 {...register("emergencyContactRelationship")}
-                className={inputClassName}
                 placeholder="e.g., Spouse, Parent"
               />
             </div>
-            <div>
-              <label htmlFor="emergencyContactPhone" className={labelClassName}>
-                Phone
-              </label>
-              <input
+            <div className="space-y-2">
+              <Label htmlFor="emergencyContactPhone">Phone</Label>
+              <Input
                 type="tel"
                 id="emergencyContactPhone"
                 {...register("emergencyContactPhone")}
-                className={inputClassName}
                 placeholder="Enter phone"
               />
             </div>
-          </div>
-        </div>
+          </CardContent>
+        </Card>
 
         <div className="flex justify-end gap-4">
           <Button
             type="button"
-            text="Cancel"
-            varientColor="secondary"
-          />
+            variant="outline"
+            onClick={() => navigate(-1)}
+          >
+            Cancel
+          </Button>
           <Button
             type="submit"
-            text={isSubmitting ? "Creating..." : "Create Patient"}
-            varientColor="primary"
-          />
+            variant="default"
+            disabled={isSubmitting}
+          >
+            {isSubmitting ? "Creating..." : "Create Patient"}
+          </Button>
         </div>
       </form>
     </div>
