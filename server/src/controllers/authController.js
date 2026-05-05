@@ -167,15 +167,23 @@ export const updateProfile = async (req, res) => {
 
 // Logout (clear cookie and revoke session)
 export const logout = async (req, res) => {
-  const token = req.cookies.token || req.headers.authorization?.split(" ")[1];
-  if (token && req.user?.id) {
-    await revokeSession(token, req.user.id);
+  try {
+    const token = req.cookies.token || req.headers.authorization?.split(" ")[1];
+    if (token && req.user?.id) {
+      await revokeSession(token, req.user.id).catch(() => {});
+    }
+    res.clearCookie("token");
+    res.json({
+      success: true,
+      message: "Logged out successfully",
+    });
+  } catch (error) {
+    res.clearCookie("token");
+    res.json({
+      success: true,
+      message: "Logged out successfully",
+    });
   }
-  res.clearCookie("token");
-  res.json({
-    success: true,
-    message: "Logged out successfully",
-  });
 };
 
 // Get active sessions

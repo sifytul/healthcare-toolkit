@@ -55,11 +55,25 @@ export const createSession = async (user, token, req) => {
 };
 
 // Revoke a session
-export const revokeSession = async (sessionId, userId) => {
-  const session = await Session.findOne({ _id: sessionId, user: userId });
-  if (session) {
-    session.status = "revoked";
-    await session.save();
+export const revokeSession = async (sessionIdOrToken, userId) => {
+  try {
+    // Handle both session ID and token lookup
+    let session;
+    if (sessionIdOrToken && sessionIdOrToken.match(/^[0-9a-fA-F]{24}$/)) {
+      // It's a valid ObjectId, look up by session ID
+      session = await Session.findOne({ _id: sessionIdOrToken, user: userId });
+    } else if (sessionIdOrToken) {
+      // It's a token, look up by token field
+      session = await Session.findOne({ token: sessionIdOrToken, user: userId });
+    }
+    
+    if (session) {
+      session.status = "revoked";
+      await session.save();
+    }
+  } catch (error) {
+    // Log but don't crash - session revocation is not critical
+    console.error("Session revocation error:", error.message);
   }
 };
 
