@@ -8,7 +8,7 @@ export interface User {
   fullName: string;
   username: string;
   email: string;
-  role: "doctor" | "patient" | "diagnostic_center" | "admin" | "government_analyst";
+  role: "doctor" | "patient" | "diagnostic_center";
   avatar?: string;
   specialty?: string;
   dateOfBirth?: string;
@@ -31,7 +31,7 @@ interface RegisterData {
   username: string;
   email: string;
   password: string;
-  role: "doctor" | "patient" | "diagnostic_center" | "admin" | "government_analyst";
+  role: "doctor" | "patient" | "diagnostic_center";
   specialty?: string;
   licenseNumber?: string;
   dateOfBirth?: string;
