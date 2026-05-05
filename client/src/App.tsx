@@ -14,6 +14,7 @@ import PatientDashboard from "./pages/PatientDashboard";
 import SearchPatients from "./pages/searchPatients";
 import SignIn from "./pages/signIn";
 import CreatePatient from "./pages/createPatient";
+import RouteGuard from "./components/RouteGuard";
 
 interface propType {}
 
@@ -40,7 +41,11 @@ function App() {
   return (
     <>
       <Routes>
-        <Route path="/" element={<Home />}>
+        <Route path="/" element={
+          <RouteGuard>
+            <Home />
+          </RouteGuard>
+        }>
           <Route index element={<Welcome />} />
           <Route path="create-patient" element={<CreatePatient />} />
           <Route path="search-patient" element={<SearchPatients />} />

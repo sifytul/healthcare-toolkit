@@ -92,7 +92,6 @@ const CreatePatient = () => {
           : undefined,
       };
 
-      console.log("submitted data: ", payload)
       const response = await fetch(API_URL, {
         method: "POST",
         headers: getAuthHeaders(),
@@ -107,7 +106,7 @@ const CreatePatient = () => {
       const result = await response.json();
       setSuccess(true);
       setTimeout(() => {
-        navigate(`/patient/${result.data.patient._id}`);
+        navigate(`/search-patient/patient-dashboard/${result.data.patient._id}`);
       }, 1500);
     } catch (err: any) {
       setServerError(err.message);
@@ -307,9 +306,9 @@ const CreatePatient = () => {
             </div>
 
             <div className="flex justify-end gap-3 pt-4">
-              <Link to="/" className="inline-flex shrink-0 items-center justify-center rounded-lg border border-border bg-background px-2.5 py-1.5 text-sm font-medium hover:bg-muted hover:text-foreground h-8 gap-1.5">
-                Cancel
-              </Link>
+              <Button variant="outline" asChild>
+                <Link to="/">Cancel</Link>
+              </Button>
               <Button type="submit" disabled={isSubmitting}>
                 {isSubmitting ? "Creating..." : "Create Patient"}
               </Button>

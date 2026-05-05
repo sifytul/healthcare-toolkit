@@ -35,10 +35,8 @@ const SearchPatients = () => {
 
       const data = await response.json();
       
-      // If response has an error message in data, treat as real error
-      // Otherwise, it's a valid response (even if empty)
-      if (!response.ok && data.message && !data.data?.patients) {
-        throw new Error(data.message);
+      if (!response.ok) {
+        throw new Error(data.message || "Failed to fetch patients");
       }
 
       // Transform _id to patientId for PatientSearch component
@@ -82,7 +80,7 @@ const SearchPatients = () => {
             loading={loading}
             searchValue={searchTerm}
             onSearchChange={setSearchTerm}
-            patientDashboardBasePath="/patient"
+            patientDashboardBasePath="/search-patient/patient-dashboard"
             emptyMessage="Enter a name, patient ID, or phone number to search"
           />
         </CardContent>

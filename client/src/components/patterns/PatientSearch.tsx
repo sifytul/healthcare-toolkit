@@ -1,4 +1,5 @@
 import * as React from "react";
+import { useMemo } from "react";
 import { Search, X } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -7,6 +8,29 @@ import { Badge } from "@/components/ui/badge";
 import { DataTable, Column } from "./DataTable";
 import { cn } from "@/lib/utils";
 import { Link } from "react-router-dom";
+
+// Helper functions defined outside component to avoid recreation on every render
+const calculateAge = (dateOfBirth: string): string => {
+  if (!dateOfBirth) return "N/A";
+  const today = new Date();
+  const birthDate = new Date(dateOfBirth);
+  let age = today.getFullYear() - birthDate.getFullYear();
+  const monthDiff = today.getMonth() - birthDate.getMonth();
+  if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+    age--;
+  }
+  return String(age);
+};
+
+const formatDate = (dateString: string): string => {
+  if (!dateString) return "N/A";
+  const date = new Date(dateString);
+  return date.toLocaleDateString("en-GB", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+  });
+};
 
 export interface Patient {
   patientId: string;
@@ -43,8 +67,8 @@ export function PatientSearch({
   emptyMessage = "Start typing to search patients",
   className,
 }: PatientSearchProps) {
-  // Default columns if not provided
-  const defaultColumns: Column<Patient>[] = [
+  // Default columns memoized with patientDashboardBasePath dependency
+  const defaultColumns = useMemo<Column<Patient>[]>(() => [
     {
       key: "patientId",
       label: "ID",
@@ -101,33 +125,14 @@ export function PatientSearch({
       label: "Phone",
       render: (row) => row.phone || "N/A",
     },
-  ];
+  ], [patientDashboardBasePath]);
 
   const displayColumns = columns || defaultColumns;
 
-  // Calculate age from date of birth
-  const calculateAge = (dateOfBirth: string) => {
-    if (!dateOfBirth) return "N/A";
-    const today = new Date();
-    const birthDate = new Date(dateOfBirth);
-    let age = today.getFullYear() - birthDate.getFullYear();
-    const monthDiff = today.getMonth() - birthDate.getMonth();
-    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
-      age--;
-    }
-    return age;
-  };
-
-  // Format date
-  const formatDate = (dateString: string) => {
-    if (!dateString) return "N/A";
-    const date = new Date(dateString);
-    return date.toLocaleDateString("en-GB", {
-      day: "2-digit",
-      month: "short",
-      year: "numeric",
-    });
-  };
+  // Only pass actions if onPatientClick is provided, otherwise omit actions entirely
+  const tableActions = onPatientClick
+    ? { onView: onPatientClick }
+    : undefined;
 
   return (
     <div className={cn("space-y-4", className)}>
@@ -189,9 +194,7 @@ export function PatientSearch({
             columns={displayColumns}
             data={patients}
             keyField="patientId"
-            actions={{
-              onView: onPatientClick || ((patient) => {}),
-            }}
+            actions={tableActions}
           />
         </Card>
       )}
