@@ -97,7 +97,7 @@ A healthcare management tool to create a database of antibiograms for improving 
 - [x] 3.8 Create Prescription model with drug_name, dosage, duration
 - [x] 3.9 Build patient timeline API with visits, diagnoses, prescriptions
 - [x] 3.10 Add filters (date, disease, doctor) - implemented in controllers
-- [ ] 3.11 Update the UI to display patient details and history effectively
+- [x] 3.11 Update the UI to display patient details and history effectively
 
 ### Phase 4: Report Management (Priority: Medium)
 

@@ -4,6 +4,9 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import {
   Table,
   TableBody,
@@ -30,12 +33,31 @@ interface Visit {
   };
 }
 
+interface VisitFormData {
+  department: string;
+  reason: string;
+  diagnosis: string;
+  treatment: string;
+  startDate: string;
+}
+
+const initialVisitData: VisitFormData = {
+  department: "",
+  reason: "",
+  diagnosis: "",
+  treatment: "",
+  startDate: new Date().toISOString().split("T")[0],
+};
+
 const Visits = () => {
   const { id } = useParams<{ id: string }>();
   const [visits, setVisits] = useState<Visit[]>([]);
   const [searchedText, setSearchedText] = useState("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [saving, setSaving] = useState(false);
+  const [isAddVisitDialogOpen, setIsAddVisitDialogOpen] = useState(false);
+  const [visitForm, setVisitForm] = useState<VisitFormData>(initialVisitData);
 
   const getAuthHeaders = () => {
     const token = localStorage.getItem("token");
@@ -74,6 +96,34 @@ const Visits = () => {
 
   const changeHandler = (e: ChangeEvent<HTMLInputElement>) => {
     setSearchedText(e.target.value);
+  };
+
+  // Handle add visit submit
+  const handleAddVisit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!id || !visitForm.department) return;
+
+    setSaving(true);
+    try {
+      const response = await fetch(`${API_URL}/${id}/visits`, {
+        method: "POST",
+        headers: getAuthHeaders(),
+        body: JSON.stringify(visitForm),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to add visit");
+      }
+
+      const data = await response.json();
+      setVisits((prev) => [...prev, data.data.visit]);
+      setIsAddVisitDialogOpen(false);
+      setVisitForm(initialVisitData);
+    } catch (err: any) {
+      setError(err.message);
+    } finally {
+      setSaving(false);
+    }
   };
 
   // Filter visits based on search
@@ -180,12 +230,87 @@ const Visits = () => {
         </Table>
       </div>
 
-      {/* Add Visit Button */}
+      {/* Add Visit Button with Dialog */}
       <div className="flex justify-end">
-        <Button>
-          <Plus className="h-4 w-4 mr-2" />
-          Add Visit
-        </Button>
+        <Dialog open={isAddVisitDialogOpen} onOpenChange={setIsAddVisitDialogOpen}>
+          <DialogTrigger asChild>
+            <Button>
+              <Plus className="h-4 w-4 mr-2" />
+              Add Visit
+            </Button>
+          </DialogTrigger>
+          <DialogContent>
+            <form onSubmit={handleAddVisit}>
+              <DialogHeader>
+                <DialogTitle>Add New Visit</DialogTitle>
+                <DialogDescription>Record a new visit for this patient.</DialogDescription>
+              </DialogHeader>
+              <div className="grid gap-4 py-4">
+                <div className="space-y-2">
+                  <Label>Department</Label>
+                  <Select
+                    value={visitForm.department}
+                    onValueChange={(value) => setVisitForm({ ...visitForm, department: value })}
+                    required
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select department" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="General Medicine">General Medicine</SelectItem>
+                      <SelectItem value="Cardiology">Cardiology</SelectItem>
+                      <SelectItem value="Neurology">Neurology</SelectItem>
+                      <SelectItem value="Orthopedics">Orthopedics</SelectItem>
+                      <SelectItem value="Pediatrics">Pediatrics</SelectItem>
+                      <SelectItem value="Dermatology">Dermatology</SelectItem>
+                      <SelectItem value="Ophthalmology">Ophthalmology</SelectItem>
+                      <SelectItem value="ENT">ENT</SelectItem>
+                      <SelectItem value="Surgery">Surgery</SelectItem>
+                      <SelectItem value="Emergency">Emergency</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <Label>Reason for Visit</Label>
+                  <Input
+                    value={visitForm.reason}
+                    onChange={(e) => setVisitForm({ ...visitForm, reason: e.target.value })}
+                    placeholder="e.g., Annual checkup"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Diagnosis</Label>
+                  <Input
+                    value={visitForm.diagnosis}
+                    onChange={(e) => setVisitForm({ ...visitForm, diagnosis: e.target.value })}
+                    placeholder="Initial diagnosis"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Treatment</Label>
+                  <Input
+                    value={visitForm.treatment}
+                    onChange={(e) => setVisitForm({ ...visitForm, treatment: e.target.value })}
+                    placeholder="Prescribed treatment"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Date</Label>
+                  <Input
+                    type="date"
+                    value={visitForm.startDate}
+                    onChange={(e) => setVisitForm({ ...visitForm, startDate: e.target.value })}
+                    required
+                  />
+                </div>
+              </div>
+              <DialogFooter>
+                <Button type="button" variant="outline" onClick={() => setIsAddVisitDialogOpen(false)}>Cancel</Button>
+                <Button type="submit" disabled={saving}>{saving ? "Saving..." : "Save Visit"}</Button>
+              </DialogFooter>
+            </form>
+          </DialogContent>
+        </Dialog>
       </div>
     </div>
   );
