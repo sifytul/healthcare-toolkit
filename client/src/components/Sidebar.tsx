@@ -17,6 +17,7 @@ import {
   BarChart3,
   Building2,
   UserCircle,
+  ClipboardCheck,
 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -64,6 +65,12 @@ const Sidebar = ({ sideBar = true, sideBarHandler, isCollapsed = false }: Sideba
               { path: "/appointments", icon: Calendar, label: "Appointments" },
               { path: "/prescriptions", icon: Pill, label: "Prescriptions" },
               { path: "/diagnoses", icon: FileText, label: "Diagnoses" },
+            ],
+          },
+          {
+            title: "Reviews",
+            items: [
+              { path: "/reviews", icon: ClipboardCheck, label: "Reviews" },
             ],
           },
           {

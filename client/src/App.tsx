@@ -14,6 +14,8 @@ import PatientDashboard from "./pages/PatientDashboard";
 import SearchPatients from "./pages/searchPatients";
 import SignIn from "./pages/signIn";
 import CreatePatient from "./pages/createPatient";
+import ReviewsList from "./pages/ReviewsList";
+import ReviewDetail from "./pages/ReviewDetail";
 import RouteGuard from "./components/RouteGuard";
 
 interface propType {}
@@ -62,6 +64,8 @@ function App() {
             <Route path="radiology" element={<Radiology />} />
           </Route>
           <Route path="edit-patient" element={<EditPatient />} />
+          <Route path="reviews" element={<ReviewsList />} />
+          <Route path="reviews/:id" element={<ReviewDetail />} />
           <Route path="/*" element={<PageNotFound />} />
         </Route>
         <Route path="/signin" element={<SignIn />} />
