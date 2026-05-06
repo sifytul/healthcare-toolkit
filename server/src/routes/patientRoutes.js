@@ -10,19 +10,21 @@ import {
   addMedication,
   endVisit,
   getPatientTimeline,
+  searchPatients,
 } from "../controllers/patientController.js";
 import { verifyToken, authorize } from "../middleware/auth.js";
 
 const router = Router();
 
 // All patient routes require authentication
-// Doctors and diagnostic centers can manage patients
+// Doctors, diagnostic centers, and admins can manage patients
 router.use(verifyToken);
-router.use(authorize("doctor", "diagnostic_center"));
+router.use(authorize("doctor", "diagnostic_center", "admin"));
 
 // CRUD operations
 router.post("/", createPatient);
 router.get("/", getAllPatients);
+router.get("/search", searchPatients);
 router.get("/:id", getPatientById);
 router.put("/:id", updatePatient);
 router.delete("/:id", deletePatient);

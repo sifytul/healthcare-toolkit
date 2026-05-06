@@ -62,6 +62,56 @@ export const createPatient = async (req, res) => {
   }
 };
 
+// Search patients by name, patientId, phone, or email
+export const searchPatients = async (req, res) => {
+  try {
+    const { q, page = 1, limit = 10 } = req.query;
+
+    if (!q || q.trim().length === 0) {
+      return res.status(400).json({ message: "Search query is required" });
+    }
+
+    const searchQuery = q.trim();
+
+    // Build query to search by patientId, name, phone, or email
+    const query = {
+      $or: [
+        { patientId: { $regex: searchQuery, $options: "i" } },
+        { firstName: { $regex: searchQuery, $options: "i" } },
+        { lastName: { $regex: searchQuery, $options: "i" } },
+        { phone: { $regex: searchQuery, $options: "i" } },
+        { email: { $regex: searchQuery, $options: "i" } },
+      ],
+    };
+
+    const skip = (page - 1) * limit;
+
+    const patients = await Patient.find(query)
+      .select("patientId firstName lastName dateOfBirth gender phone email address createdAt")
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(Number(limit));
+
+    const total = await Patient.countDocuments(query);
+
+    res.json({
+      success: true,
+      data: {
+        patients,
+        pagination: {
+          total,
+          page: Number(page),
+          pages: Math.ceil(total / limit),
+          limit: Number(limit),
+        },
+      },
+    });
+  } catch (error) {
+    console.error("SearchPatients error:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
 // Get all patients (with optional search)
 export const getAllPatients = async (req, res) => {
   try {
