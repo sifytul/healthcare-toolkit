@@ -671,9 +671,6 @@ const Overview = () => {
           </div>
         </>
       )}
-    </div>
-  );
-};
 
       <Separator />
 
